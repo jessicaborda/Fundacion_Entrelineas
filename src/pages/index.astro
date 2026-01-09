@@ -1,11 +1,40 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import BaseLayout from '@layouts/BaseLayout.astro';
+import WhoWeAre from '@components/organisms/WhoWeAre.astro';
+import WhatWeDo from '@components/organisms/WhatWeDo.astro';
+import Activities from '@components/organisms/Activities.astro';
+import Gallery from '@components/organisms/Gallery.astro';
+import Collaborators from '@components/organisms/Collaborators.astro';
+import Contact from '@components/organisms/Contact.astro';
+import Hero from '@components/organisms/Hero.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout title="Entrelíneas">
+  <section id="hero">
+    <Hero />
+  </section>
+
+  <section id="quienes-somos">
+    <WhoWeAre />
+  </section>
+
+  <section id="que-hacemos">
+    <WhatWeDo />
+  </section>
+
+  <section id="actividades">
+    <Activities />
+  </section>
+
+  <section id="galeria">
+    <Gallery />
+  </section>
+
+  <section id="colaboradores">
+    <Collaborators />
+  </section>
+
+  <section id="contacto">
+    <Contact />
+  </section>
+</BaseLayout>

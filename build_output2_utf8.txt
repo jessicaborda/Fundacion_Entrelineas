@@ -1,0 +1,119 @@
+﻿
+> fundacion-entrelineas@0.0.1 build
+> astro build
+
+[2m17:18:07[22m [34m[content][39m Syncing content
+[2m17:18:07[22m [34m[content][39m Synced content
+[2m17:18:07[22m [34m[types][39m Generated [2m36ms[22m
+[2m17:18:07[22m [34m[build][39m output: [34m"static"[39m
+[2m17:18:07[22m [34m[build][39m mode: [34m"static"[39m
+[2m17:18:07[22m [34m[build][39m directory: [34mC:\Users\usuario\Documents\Programacion\Fundacion_Entrelineas\dist\[39m
+[2m17:18:07[22m [34m[build][39m Collecting build info...
+[2m17:18:07[22m [34m[build][39m [32mÔ£ô Completed in 46ms.[39m
+[2m17:18:07[22m [34m[build][39m Building static entrypoints...
+node.exe : [31m[1m17
+:18:08[22m [ERROR] 
+[vite][39m 
+[31mÔ£ù[39m Build 
+failed in 747ms
+En C:\Program 
+Files\nodejs\npm.ps1: 
+29 Carácter: 3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ([31m[1m1   
+ 7:18:...failed in    
+ 747ms:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+[33m[1m17:18:08[22m [WARN] [vite][39m 
+/fundacion-entre-lineas/hero-image.jpg referenced in /fundacion-entre-lineas/hero-image.jpg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[astro:build] [sass] 
+Error: Undefined 
+variable.
+   ÔòÀ
+10 Ôöé     gap: 
+$spacing-2xl;
+   Ôöé          
+^^^^^^^^^^^^
+   ÔòÁ
+  ..\..\..\..\src\comp
+onents\organisms\WhatW
+eDo.astro 10:10  root 
+stylesheet
+file: C:/Users/usuario
+/Documents/Programacio
+n/Fundacion_Entrelinea
+s/src/components/organ
+isms/WhatWeDo.astro:40
+:10
+
+[sass] Error: 
+Undefined variable.
+   ÔòÀ
+10 Ôöé     gap: 
+$spacing-2xl;
+   Ôöé          
+^^^^^^^^^^^^
+   ÔòÁ
+  ..\..\..\..\src\comp
+onents\organisms\WhatW
+eDo.astro 10:10  root 
+stylesheet
+
+  [1mError 
+reference:[22m
+    [36m[4mhttps://d
+ocs.astro.build/en/ref
+erence/errors/unknown-
+csserror/[24m[39m
+  [1mLocation:[22m
+    [4mC:/Users/usuar
+io/Documents/Programac
+ion/Fundacion_Entrelin
+eas/src/components/org
+anisms/WhatWeDo.astro:
+40:10[24m
+  [1mStack 
+trace:[22m
+[2m    at 
+handleCompileResponse 
+(C:\Users\usuario\Docu
+ments\Programacion\Fun
+dacion_Entrelineas\nod
+e_modules\sass-embedde
+d\dist\lib\src\compile
+r\utils.js:156:15)
+    at process.process
+TicksAndRejections (no
+de:internal/process/ta
+sk_queues:105:5)
+    at async process (
+file:///C:/Users/usuar
+io/Documents/Programac
+ion/Fundacion_Entrelin
+eas/node_modules/vite/
+dist/node/chunks/dep-D
+4NMHUTW.js:44616:24)
+    at async 
+compileCSS (file:///C:
+/Users/usuario/Documen
+ts/Programacion/Fundac
+ion_Entrelineas/node_m
+odules/vite/dist/node/
+chunks/dep-D4NMHUTW.js
+:43663:32)
+    at async file:///C
+:/Users/usuario/Docume
+nts/Programacion/Funda
+cion_Entrelineas/node_
+modules/astro/dist/cor
+e/compile/style.js:17:
+22[22m

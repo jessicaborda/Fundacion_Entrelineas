@@ -1,0 +1,42 @@
+---
+// WhatWeDo component
+import SectionTitle from '../molecules/SectionTitle.astro';
+import IconText from '../atoms/IconText.astro';
+---
+
+<div class="what-we-do">
+  <SectionTitle orientation="right">
+    <h2 class="what-we-do__title">Lo que nos mueve</h2>
+    <p>Lectura, arte y pensamiento crítico para transformar el mundo.</p>
+  </SectionTitle>
+  <div class="what-we-do__content">
+    <IconText
+      icon="/fundacion-entre-lineas/icons/icon_01.svg"
+      description="Lectura que transforma"
+      textClass="La lectura es una herramienta de crecimiento personal y colectivo. Queremos acercar los libros a todas las personas y crear espacios de reflexión compartida.">
+    </IconText>
+    <IconText
+      icon="/fundacion-entre-lineas/icons/icon_02.svg"
+      description="Arte que conecta"
+      textClass="Las artes nos permiten expresarnos y entender el mundo desde múltiples miradas. Buscamos promover la creatividad como puente cultural.">
+    </IconText>
+    <IconText
+      icon="/fundacion-entre-lineas/icons/icon_03.svg"
+      description="Pensamiento crítico"
+      textClass="Fomentamos el diálogo y la reflexión que nos ayudan a cuestionar, comprender y construir sociedades más justas.">
+    </IconText>
+  </div>
+</div>
+
+<style lang="scss">
+  .what-we-do {
+  }
+
+  .what-we-do__content {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2xl;
+  }
+</style>

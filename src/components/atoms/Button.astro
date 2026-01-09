@@ -1,0 +1,91 @@
+---
+export interface Props {
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
+  type = 'button',
+  class: className = '',
+} = Astro.props;
+---
+
+<button
+  type={type}
+  disabled={disabled}
+  class={`btn btn--${variant} btn--${size} ${className}`}
+>
+  <slot />
+</button>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Variantes */
+  .btn--primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .btn--primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn--secondary {
+    background: #e2e8f0;
+    color: #2d3748;
+  }
+
+  .btn--secondary:hover:not(:disabled) {
+    background: #cbd5e0;
+  }
+
+  .btn--outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+  }
+
+  .btn--outline:hover:not(:disabled) {
+    background: #667eea;
+    color: white;
+  }
+
+  /* Tamaños */
+  .btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn--md {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+// Activities component
+import SectionTitle from '../molecules/SectionTitle.astro';
+---
+
+<div class="activities">
+  <SectionTitle orientation="left">
+    <div class="activities__title">Actividades</div>
+  </SectionTitle>
+  <div class="activities__content">
+    <p class="activities__description">Contenido de actividades...</p>
+  </div>
+</div>
+
+<style lang="scss">
+  .activities {
+  }
+
+  .activities__content {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .activities__description {
+    margin: 0;
+    color: $color-text;
+    font-size: $font-size-base;
+  }
+</style>

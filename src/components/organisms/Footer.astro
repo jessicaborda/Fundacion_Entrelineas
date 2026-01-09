@@ -1,0 +1,161 @@
+---
+// Footer component
+---
+
+<footer class="footer">
+  <div class="footer__logo">
+    <img
+      src="/fundacion-entre-lineas/logo.svg"
+      alt="Entrelíneas"
+      class="footer__logo-image"
+    />
+  </div>
+
+  <nav class="footer__nav">
+    <a href="#quienes-somos" class="footer__nav-link">Quiénes somos</a>
+    <span class="footer__nav-separator">|</span>
+    <a href="#que-hacemos" class="footer__nav-link">Qué hacemos</a>
+    <span class="footer__nav-separator">|</span>
+    <a href="#actividades" class="footer__nav-link">Actividades</a>
+    <span class="footer__nav-separator">|</span>
+    <a href="#galeria" class="footer__nav-link">Galería</a>
+    <span class="footer__nav-separator">|</span>
+    <a href="#colaboradores" class="footer__nav-link">Colaboradores</a>
+    <span class="footer__nav-separator">|</span>
+    <a href="#contacto" class="footer__nav-link">Contacto</a>
+  </nav>
+
+  <div class="footer__legal">
+    <a href="#aviso-legal" class="footer__legal-link">Aviso Legal</a>
+    <span class="footer__separator">|</span>
+    <a href="#politicas" class="footer__legal-link">Políticas</a>
+    <span class="footer__separator">|</span>
+    <span class="footer__copyright">Copyright 2025 - Entrelíneas</span>
+  </div>
+</footer>
+
+<style lang="scss">
+  .footer {
+    background-color: $color-secondary;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: $font-family;
+    padding: $spacing-xl;
+    gap: $spacing-lg;
+    min-height: $footer-height;
+  }
+
+  .footer__logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  .footer__logo-image {
+    width: 120px;
+    height: auto;
+  }
+
+  .footer__brand {
+    color: $color-primary;
+    font-size: $font-size-xl;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .footer__nav {
+    display: flex;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  // Base styles for all text elements
+  .footer__nav-link,
+  .footer__legal-link {
+    color: $color-text-light;
+    text-decoration: none;
+    font-weight: 400;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  // Navigation specific styles
+  .footer__nav-link {
+    font-size: $font-size-base;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .footer__legal-link {
+    font-size: $font-size-sm;
+  }
+
+  // Separator styles (unified)
+  .footer__nav-separator,
+  .footer__separator {
+    color: $color-text-light;
+    font-weight: 300;
+  }
+
+  .footer__nav-separator {
+    font-size: $font-size-base;
+  }
+
+  .footer__separator {
+    font-size: $font-size-sm;
+  }
+
+  // Legal section layout
+  .footer__legal {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  // Copyright text
+  .footer__copyright {
+    color: $color-text-light;
+    font-size: $font-size-sm;
+    font-weight: 400;
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      padding: $spacing-lg;
+      gap: $spacing-md;
+    }
+
+    .footer__nav {
+      gap: $spacing-md;
+    }
+
+    .footer__nav-link {
+      font-size: $font-size-sm;
+      padding: $spacing-xs $spacing-sm;
+    }
+
+    // Hide separators on mobile
+    .footer__nav-separator,
+    .footer__separator {
+      display: none;
+    }
+
+    .footer__legal {
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+  }
+</style>

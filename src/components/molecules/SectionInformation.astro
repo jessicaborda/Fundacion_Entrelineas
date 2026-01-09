@@ -1,0 +1,57 @@
+---
+// SectionInformation component
+---
+
+<div class="hero-info">
+  <h1 class="hero-info__title">Nuestra historia entre líneas </h1>
+  <div class="hero-info__subtitle">
+    <h5 class="hero-info__subtitle-text">
+      Proyecto cultural escrito en comunidad
+    </h5>
+  </div>
+  <p class="hero-info__description">
+    En Entrelineas trabajamos para que la cultura no sea un lujo, sino un derecho al alcance de todas y todos.
+  </p>
+</div>
+
+<style lang="scss">
+  .hero-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    background-color: $color-secondary;
+    padding: $spacing-2xl;
+    gap: $spacing-md;
+  }
+
+  .hero-info__title {
+    font-size: $font-size-2xl;
+    font-weight: 600;
+    color: $color-text-light;
+    text-align: left;
+    margin: 0;
+  }
+
+  .hero-info__subtitle {
+    background-color: $color-primary;
+    padding: $spacing-sm;
+    width: fit-content;
+  }
+
+  .hero-info__subtitle-text {
+    font-size: $font-size-base;
+    font-weight: 800;
+    color: $color-text;
+    text-align: left;
+    margin: 0;
+  }
+
+  .hero-info__description {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $color-text-light;
+    text-align: left;
+    margin: 0;
+  }
+</style>

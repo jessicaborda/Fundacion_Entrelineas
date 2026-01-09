@@ -1,0 +1,31 @@
+---
+// Collaborators component
+import SectionTitle from '../molecules/SectionTitle.astro';
+---
+
+<div class="collaborators">
+  <SectionTitle orientation="left">
+    <div class="collaborators__title">Colaboradores</div>
+  </SectionTitle>
+  <div class="collaborators__content">
+    <p class="collaborators__description">Contenido de colaboradores...</p>
+  </div>
+</div>
+
+<style lang="scss">
+  .collaborators {
+  }
+
+  .collaborators__content {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .collaborators__description {
+    margin: 0;
+    color: $color-text;
+    font-size: $font-size-base;
+  }
+</style>

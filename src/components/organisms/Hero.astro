@@ -1,0 +1,27 @@
+---
+// Hero component
+import HeroInformation from '@components/molecules/HeroInformation.astro';
+---
+
+<div class="hero">
+  <HeroInformation />
+  <div class="hero__image"></div>
+</div>
+
+<style lang="scss">
+  .hero {
+    display: flex;
+    flex-direction: row;
+    max-height: 400px;
+  }
+
+  .hero__image {
+    flex: 1;
+    height: 400px;
+    background-image:
+      linear-gradient(to right, #151515, #00000033),
+      /* gradiente encima */ url('/fundacion-entre-lineas/hero-image.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+</style>
