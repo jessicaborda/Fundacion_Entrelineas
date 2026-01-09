@@ -3,7 +3,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  base: '/fundacion-entre-lineas/',
+  site: 'https://jessicaborda.github.io',
+  base: '/Fundacion_Entrelineas/',
   vite: {
     css: {
       preprocessorOptions: {
