@@ -1,161 +1,183 @@
 ---
-// Footer component
+// Footer — multi-column editorial layout
 ---
 
 <footer class="footer">
-  <div class="footer__logo">
-    <img
-      src="/Fundacion_Entrelineas/logo.svg"
-      alt="Entrelíneas"
-      class="footer__logo-image"
-    />
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <img
+        src="/Fundacion_Entrelineas/logo-light.svg"
+        alt="Entrelíneas"
+        class="footer__logo-img"
+      />
+      <blockquote class="footer__quote">
+        "Lo que se lee en compañía nunca se olvida del todo."
+      </blockquote>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__col-heading">Navega</h4>
+      <ul class="footer__list">
+        <li><a href="/Fundacion_Entrelineas/#quienes-somos" class="footer__link">Quiénes somos</a></li>
+        <li><a href="/Fundacion_Entrelineas/#que-hacemos" class="footer__link">Qué hacemos</a></li>
+        <li><a href="/Fundacion_Entrelineas/#actividades" class="footer__link">Actividades</a></li>
+        <li><a href="/Fundacion_Entrelineas/#galeria" class="footer__link">Galería</a></li>
+        <li><a href="/Fundacion_Entrelineas/#colaboradores" class="footer__link">Colaboradores</a></li>
+        <li><a href="/Fundacion_Entrelineas/blog/" class="footer__link">Blog</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__col-heading">Encuentra</h4>
+      <ul class="footer__list">
+        <li><a href="/Fundacion_Entrelineas/#actividades" class="footer__link">Próximos eventos</a></li>
+        <li><a href="/Fundacion_Entrelineas/blog/" class="footer__link">Publicaciones</a></li>
+        <li><a href="/Fundacion_Entrelineas/#contacto" class="footer__link">Voluntariado</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__col-heading">Síguenos</h4>
+      <ul class="footer__list">
+        <li><a href="https://www.instagram.com/fundacio_entrelineas" target="_blank" rel="noopener" class="footer__link">Instagram</a></li>
+        <li><a href="https://www.facebook.com/FundacionEntrelineas" target="_blank" rel="noopener" class="footer__link">Facebook</a></li>
+      </ul>
+    </div>
   </div>
 
-  <nav class="footer__nav">
-    <a href="#quienes-somos" class="footer__nav-link">Quiénes somos</a>
-    <span class="footer__nav-separator">|</span>
-    <a href="#que-hacemos" class="footer__nav-link">Qué hacemos</a>
-    <span class="footer__nav-separator">|</span>
-    <a href="#actividades" class="footer__nav-link">Actividades</a>
-    <span class="footer__nav-separator">|</span>
-    <a href="#galeria" class="footer__nav-link">Galería</a>
-    <span class="footer__nav-separator">|</span>
-    <a href="#colaboradores" class="footer__nav-link">Colaboradores</a>
-    <span class="footer__nav-separator">|</span>
-    <a href="#contacto" class="footer__nav-link">Contacto</a>
-  </nav>
-
-  <div class="footer__legal">
-    <a href="#aviso-legal" class="footer__legal-link">Aviso Legal</a>
-    <span class="footer__separator">|</span>
-    <a href="#politicas" class="footer__legal-link">Políticas</a>
-    <span class="footer__separator">|</span>
-    <span class="footer__copyright">Copyright 2025 - Entrelíneas</span>
+  <div class="footer__bottom">
+    <span class="footer__copy">© 2025 Fundación Cultural Entrelíneas · Tunja, Boyacá</span>
+    <div class="footer__legal">
+      <a href="#aviso-legal" class="footer__legal-link">Aviso legal</a>
+      <a href="#politicas" class="footer__legal-link">Políticas</a>
+    </div>
   </div>
 </footer>
 
 <style lang="scss">
   .footer {
     background-color: $color-secondary;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: $font-family;
-    padding: $spacing-xl;
-    gap: $spacing-lg;
-    min-height: $footer-height;
+    padding: $spacing-section $spacing-section $spacing-xl;
   }
 
-  .footer__logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  .footer__logo-image {
-    width: 120px;
-    height: auto;
+  .footer__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: $spacing-2xl;
+    padding-bottom: $spacing-2xl;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .footer__brand {
-    color: $color-primary;
-    font-size: $font-size-xl;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .footer__nav {
     display: flex;
+    flex-direction: column;
     gap: $spacing-lg;
-    flex-wrap: wrap;
-    justify-content: center;
   }
 
-  // Base styles for all text elements
-  .footer__nav-link,
-  .footer__legal-link {
-    color: $color-text-light;
+  .footer__logo-img {
+    height: 36px;
+    width: auto;
+  }
+
+  .footer__quote {
+    font-family: $font-family-serif;
+    font-style: italic;
+    font-size: $font-size-base;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    max-width: 300px;
+  }
+
+  .footer__col-heading {
+    font-family: $font-family;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: $color-primary;
+    margin: 0 0 $spacing-md;
+  }
+
+  .footer__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .footer__link {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    font-weight: 400;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease;
 
     &:hover {
       color: $color-primary;
     }
   }
 
-  // Navigation specific styles
-  .footer__nav-link {
-    font-size: $font-size-base;
-    padding: $spacing-sm $spacing-md;
-    border-radius: $border-radius;
+  .footer__bottom {
+    max-width: 1120px;
+    margin: $spacing-xl auto 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+  }
 
-    &:hover {
-      transform: translateY(-1px);
-    }
+  .footer__copy {
+    font-family: $font-family;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .footer__legal {
+    display: flex;
+    gap: $spacing-lg;
   }
 
   .footer__legal-link {
-    font-size: $font-size-sm;
+    font-family: $font-family;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-text-light;
+    }
   }
 
-  // Separator styles (unified)
-  .footer__nav-separator,
-  .footer__separator {
-    color: $color-text-light;
-    font-weight: 300;
+  @media (max-width: 900px) {
+    .footer__inner {
+      grid-template-columns: 1fr 1fr;
+      row-gap: $spacing-2xl;
+    }
+
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
   }
 
-  .footer__nav-separator {
-    font-size: $font-size-base;
-  }
-
-  .footer__separator {
-    font-size: $font-size-sm;
-  }
-
-  // Legal section layout
-  .footer__legal {
-    display: flex;
-    align-items: center;
-    gap: $spacing-md;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  // Copyright text
-  .footer__copyright {
-    color: $color-text-light;
-    font-size: $font-size-sm;
-    font-weight: 400;
-  }
-
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     .footer {
-      padding: $spacing-lg;
-      gap: $spacing-md;
+      padding: $spacing-xl;
     }
 
-    .footer__nav {
-      gap: $spacing-md;
+    .footer__inner {
+      grid-template-columns: 1fr 1fr;
     }
 
-    .footer__nav-link {
-      font-size: $font-size-sm;
-      padding: $spacing-xs $spacing-sm;
-    }
-
-    // Hide separators on mobile
-    .footer__nav-separator,
-    .footer__separator {
-      display: none;
-    }
-
-    .footer__legal {
+    .footer__bottom {
       flex-direction: column;
-      gap: $spacing-sm;
+      align-items: flex-start;
     }
   }
 </style>

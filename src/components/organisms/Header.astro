@@ -1,80 +1,140 @@
 ---
-// Header component
+// Header — editorial sticky nav
 ---
 
 <div class="header">
-  <div class="header__logo">
-    <img
-      src="/Fundacion_Entrelineas/logo.svg"
-      alt="Entrelíneas"
-      class="header__logo-image"
-    />
-  </div>
+  <div class="header__inner">
+    <a href="/Fundacion_Entrelineas/" class="header__logo">
+      <img
+        src="/Fundacion_Entrelineas/logo.svg"
+        alt="Entrelíneas"
+        class="header__logo-img"
+      />
+    </a>
 
-  <nav class="header__nav">
-    <a href="#quienes-somos" class="header__nav-link">Quiénes somos</a>
-    <a href="#que-hacemos" class="header__nav-link">Qué hacemos</a>
-    <a href="#actividades" class="header__nav-link">Actividades</a>
-    <a href="#galeria" class="header__nav-link">Galería</a>
-    <a href="#colaboradores" class="header__nav-link">Colaboradores</a>
-    <a href="#contacto" class="header__nav-link">Contacto</a>
-  </nav>
+    <nav class="header__nav">
+      <a href="/Fundacion_Entrelineas/#quienes-somos" class="header__nav-link">Quiénes somos</a>
+      <a href="/Fundacion_Entrelineas/#que-hacemos" class="header__nav-link">Qué hacemos</a>
+      <a href="/Fundacion_Entrelineas/#actividades" class="header__nav-link">Actividades</a>
+      <a href="/Fundacion_Entrelineas/#galeria" class="header__nav-link">Galería</a>
+      <a href="/Fundacion_Entrelineas/#colaboradores" class="header__nav-link">Colaboradores</a>
+      <a href="/Fundacion_Entrelineas/blog/" class="header__nav-link">Blog</a>
+      <a href="/Fundacion_Entrelineas/#contacto" class="header__nav-link header__nav-link--cta">
+        Escríbenos →
+      </a>
+    </nav>
+  </div>
 </div>
 
 <style lang="scss">
   .header {
-    background-color: $color-secondary;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(242, 242, 242, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(7, 5, 35, 0.08);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .header__inner {
+    max-width: 1280px;
+    margin: 0 auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-family: $font-family;
-    padding: $spacing-lg;
-    gap: $spacing-md;
+    justify-content: space-between;
+    padding: 1.125rem 3.5rem;
+    gap: $spacing-xl;
   }
 
   .header__logo {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 0.625rem;
+    text-decoration: none;
+    flex-shrink: 0;
   }
 
-  .header__logo-image {
-    width: 120px;
-    height: auto;
+  .header__logo-img {
+    height: 40px;
+    width: auto;
   }
 
   .header__nav {
     display: flex;
-    gap: $spacing-lg;
+    align-items: center;
+    gap: $spacing-xl;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   .header__nav-link {
-    color: white;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: rgba(7, 5, 35, 0.62);
     text-decoration: none;
-    font-size: $font-size-base;
-    font-weight: 400;
-    padding: $spacing-sm $spacing-md;
-    border-radius: $border-radius;
-    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 3px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
 
     &:hover {
-      color: #fbbf24;
-      transform: translateY(-1px);
+      color: $color-text-dark;
+      border-bottom-color: $color-primary;
+    }
+
+    &--cta {
+      background: $color-text-dark;
+      color: $color-primary;
+      border-bottom: none;
+      padding: 0.625rem 1.125rem;
+      font-weight: 700;
+
+      &:hover {
+        opacity: 0.88;
+        color: $color-primary;
+        border-bottom: none;
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .header__inner {
+      padding: 1rem $spacing-xl;
+    }
+
+    .header__nav {
+      gap: $spacing-lg;
+    }
+
+    .header__nav-link {
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .header__inner {
+      padding: 1rem $spacing-lg;
+    }
+
+    .header__nav {
+      gap: $spacing-md;
     }
   }
 
   @media (max-width: 768px) {
-    .header__nav {
-      gap: $spacing-md;
+    .header__inner {
+      flex-direction: column;
+      gap: $spacing-sm;
+      padding: $spacing-md $spacing-lg;
+      align-items: flex-start;
     }
 
-    .header__nav-link {
-      font-size: $font-size-sm;
-      padding: $spacing-xs $spacing-sm;
+    .header__nav {
+      justify-content: flex-start;
+      gap: $spacing-sm;
     }
   }
 </style>

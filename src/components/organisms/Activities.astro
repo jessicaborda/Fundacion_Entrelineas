@@ -1,31 +1,181 @@
 ---
-// Activities component
-import SectionTitle from '../molecules/SectionTitle.astro';
+// Activities — editorial dark section with activity cards
+import SectionLabel from '@components/atoms/SectionLabel.astro';
+
+const activities = [
+  { tag: 'Formación', title: 'Tertulias literarias', meta: 'Ciclos mensuales · Tunja' },
+  { tag: 'Encuentro', title: 'Café filosófico', meta: 'Conversaciones abiertas al público' },
+  { tag: 'Festival', title: 'Fiesta del libro', meta: 'Edición anual · Plaza pública' },
+  { tag: 'Programa', title: 'Promotores de lectura', meta: 'Formación intensiva · 6 meses' },
+];
 ---
 
-<div class="activities">
-  <SectionTitle orientation="left">
-    <div class="activities__title">Actividades</div>
-  </SectionTitle>
-  <div class="activities__content">
-    <p class="activities__description">Contenido de actividades...</p>
+<section class="activities" id="actividades">
+  <div class="activities__inner">
+    <div class="activities__header">
+      <SectionLabel label="Actividades" />
+      <h2 class="activities__title">
+        Procesos de encuentro y formación
+        que suceden <em class="activities__em">en comunidad</em>.
+      </h2>
+    </div>
+
+    <div class="activities__grid">
+      {activities.map((a, i) => (
+        <article class="act-card">
+          <div class="act-card__top">
+            <span class="act-card__tag">{a.tag}</span>
+            <span class="act-card__n">0{i + 1}</span>
+          </div>
+          <div class="act-card__bottom">
+            <h3 class="act-card__title">{a.title}</h3>
+            <p class="act-card__meta">{a.meta}</p>
+          </div>
+        </article>
+      ))}
+    </div>
   </div>
-</div>
+</section>
 
 <style lang="scss">
   .activities {
+    background-color: $color-editorial;
+    padding: $spacing-section;
   }
 
-  .activities__content {
-    height: 200px;
+  .activities__inner {
+    max-width: 1120px;
+    margin: 0 auto;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: $spacing-2xl;
   }
 
-  .activities__description {
+  .activities__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .activities__title {
+    font-family: $font-family-serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: $color-text-dark;
     margin: 0;
-    color: $color-text;
-    font-size: $font-size-base;
+    max-width: 600px;
+  }
+
+  .activities__em {
+    font-style: italic;
+    color: $color-accent;
+  }
+
+  .activities__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(7, 5, 35, 0.12);
+    border-left: 1px solid rgba(7, 5, 35, 0.12);
+  }
+
+  .act-card {
+    border-right: 1px solid rgba(7, 5, 35, 0.12);
+    border-bottom: 1px solid rgba(7, 5, 35, 0.12);
+    padding: $spacing-xl $spacing-lg;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $spacing-lg;
+    transition: background 0.25s ease;
+    cursor: pointer;
+
+    &:hover {
+      background: $color-primary;
+
+      .act-card__tag {
+        background: $color-text-dark;
+        color: $color-primary;
+        border-color: transparent;
+      }
+
+      .act-card__n {
+        color: rgba(7, 5, 35, 0.4);
+      }
+
+      .act-card__title {
+        color: $color-text-dark;
+      }
+
+      .act-card__meta {
+        color: rgba(7, 5, 35, 0.6);
+      }
+    }
+  }
+
+  .act-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .act-card__tag {
+    font-family: $font-family;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $color-text-dark;
+    border: 1px solid rgba(7, 5, 35, 0.25);
+    padding: 0.25rem 0.625rem;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  .act-card__n {
+    font-family: $font-family-serif;
+    font-style: italic;
+    font-size: 0.875rem;
+    color: rgba(7, 5, 35, 0.3);
+  }
+
+  .act-card__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .act-card__title {
+    font-family: $font-family-serif;
+    font-weight: 500;
+    font-size: $font-size-xl;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: $color-text-dark;
+    margin: 0;
+  }
+
+  .act-card__meta {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    color: rgba(7, 5, 35, 0.55);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .activities__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .activities {
+      padding: $spacing-xl;
+    }
+
+    .activities__grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

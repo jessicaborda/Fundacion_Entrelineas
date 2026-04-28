@@ -1,31 +1,208 @@
 ---
-// Gallery component
-import SectionTitle from '../molecules/SectionTitle.astro';
+// Gallery with editorial light background + lightbox
+import SectionLabel from '@components/atoms/SectionLabel.astro';
+
+const images = [
+  { src: '/Fundacion_Entrelineas/galeria/img_01.jpg', alt: 'Tertulia literaria Entrelíneas' },
+  { src: '/Fundacion_Entrelineas/galeria/img_05.jpg', alt: 'Encuentro cultural Entrelíneas' },
+  { src: '/Fundacion_Entrelineas/galeria/img_07.jpg', alt: 'Actividad Entrelíneas' },
+  { src: '/Fundacion_Entrelineas/galeria/img_13.jpg', alt: 'Festival de lectura' },
+  { src: '/Fundacion_Entrelineas/galeria/img_15.jpg', alt: 'Café filosófico' },
+  { src: '/Fundacion_Entrelineas/galeria/img_17.jpg', alt: 'Taller de escritura' },
+  { src: '/Fundacion_Entrelineas/galeria/img_19.jpg', alt: 'Promotores de lectura' },
+  { src: '/Fundacion_Entrelineas/galeria/img_23.jpg', alt: 'Comunidad lectora Entrelíneas' },
+];
 ---
 
-<div class="gallery">
-  <SectionTitle orientation="right">
-    <div class="gallery__title">Galería</div>
-  </SectionTitle>
-  <div class="gallery__content">
-    <p class="gallery__description">Contenido de galería...</p>
+<section class="gallery" id="galeria">
+  <div class="gallery__header">
+    <SectionLabel label="Galería" />
+    <h2 class="gallery__title">
+      Momentos en los que la cultura <em class="gallery__em">cobró vida</em>.
+    </h2>
   </div>
+
+  <div class="gallery__mosaic">
+    {images.map((img, i) => (
+      <button
+        class="gallery__btn"
+        data-index={i}
+        data-src={img.src}
+        aria-label={`Ver imagen: ${img.alt}`}
+      >
+        <img src={img.src} alt={img.alt} class="gallery__img" loading="lazy" />
+      </button>
+    ))}
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="gallery-lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+  <button class="lightbox__close" id="lightbox-close" aria-label="Cerrar">Cerrar ✕</button>
+  <img class="lightbox__img" id="lightbox-img" src="" alt="" />
 </div>
+
+<script>
+  const btns = document.querySelectorAll<HTMLButtonElement>('.gallery__btn');
+  const lightbox = document.getElementById('gallery-lightbox')!;
+  const lbImg = document.getElementById('lightbox-img') as HTMLImageElement;
+  const lbClose = document.getElementById('lightbox-close')!;
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const src = btn.dataset.src!;
+      const alt = btn.querySelector('img')!.alt;
+      lbImg.src = src;
+      lbImg.alt = alt;
+      lightbox.classList.add('lightbox--open');
+      lightbox.setAttribute('aria-hidden', 'false');
+    });
+  });
+
+  const close = () => {
+    lightbox.classList.remove('lightbox--open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lbImg.src = '';
+  };
+
+  lbClose.addEventListener('click', close);
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('lightbox--open')) close();
+  });
+</script>
 
 <style lang="scss">
   .gallery {
+    background-color: $color-editorial;
+    padding: $spacing-section;
   }
 
-  .gallery__content {
-    height: 200px;
+  .gallery__header {
+    max-width: 1120px;
+    margin: 0 auto $spacing-2xl;
     display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .gallery__title {
+    font-family: $font-family-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: $color-text-dark;
+    margin: 0;
+    max-width: 640px;
+  }
+
+  .gallery__em {
+    font-style: italic;
+  }
+
+  .gallery__mosaic {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 182px;
+    gap: $spacing-sm;
+  }
+
+  // Primera imagen: destacada (2 col × 2 row)
+  .gallery__btn:nth-child(1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  // Última imagen: ancho doble para cerrar la tercera fila
+  .gallery__btn:nth-child(8) {
+    grid-column: span 2;
+  }
+
+  .gallery__btn {
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    background: $color-accent;
+    position: relative;
+
+    &:hover .gallery__img {
+      transform: scale(1.05);
+    }
+
+    &:focus-visible {
+      outline: 3px solid $color-primary;
+      outline-offset: 2px;
+    }
+  }
+
+  .gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  // Lightbox
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 5, 35, 0.94);
+    z-index: 1000;
     align-items: center;
     justify-content: center;
+    padding: $spacing-2xl;
+    cursor: zoom-out;
+
+    &--open {
+      display: flex;
+    }
   }
 
-  .gallery__description {
-    margin: 0;
-    color: $color-text;
-    font-size: $font-size-base;
+  .lightbox__img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 0 4px $color-primary;
+    cursor: default;
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: $spacing-lg;
+    right: $spacing-lg;
+    background: $color-primary;
+    color: $color-text-dark;
+    border: 0;
+    padding: 0.625rem 1rem;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  @media (max-width: 768px) {
+    .gallery {
+      padding: $spacing-xl;
+    }
+
+    .gallery__mosaic {
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 160px;
+    }
+
+    .gallery__btn:nth-child(1),
+    .gallery__btn:nth-child(8) {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
   }
 </style>

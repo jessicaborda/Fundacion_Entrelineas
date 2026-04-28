@@ -1,0 +1,160 @@
+---
+// CTA — yellow background editorial contact section
+import SectionLabel from '@components/atoms/SectionLabel.astro';
+---
+
+<section class="cta" id="contacto">
+  <div class="cta__inner">
+    <div class="cta__left">
+      <SectionLabel label="Contacto" />
+      <h2 class="cta__title">
+        Súmate a la próxima <em class="cta__em">tertulia</em>.
+      </h2>
+      <p class="cta__description">
+        Escríbenos para conocer próximos encuentros, proponer una alianza o inscribirte
+        en la escuela de promotores. Aquí no se exige formación previa, solo curiosidad.
+      </p>
+      <div class="cta__rows">
+        <div class="cta__row">
+          <span class="cta__row-key">Correo</span>
+          <a href="mailto:fundacionculturalentrelineas@gmail.com" class="cta__row-val">
+            fundacionculturalentrelineas@gmail.com
+          </a>
+        </div>
+        <div class="cta__row">
+          <span class="cta__row-key">WhatsApp</span>
+          <a href="https://wa.me/573112641990" target="_blank" rel="noopener" class="cta__row-val">
+            +57 311 264 1990
+          </a>
+        </div>
+        <div class="cta__row">
+          <span class="cta__row-key">Instagram</span>
+          <a href="https://www.instagram.com/fundacio_entrelineas" target="_blank" rel="noopener" class="cta__row-val">
+            @fundacio_entrelineas
+          </a>
+        </div>
+        <div class="cta__row">
+          <span class="cta__row-key">Facebook</span>
+          <a href="https://www.facebook.com/FundacionEntrelineas" target="_blank" rel="noopener" class="cta__row-val">
+            Fundacion Entrelíneas
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta__image-wrap">
+      <img
+        src="/Fundacion_Entrelineas/galeria/img_12.jpg"
+        alt="Encuentro Entrelíneas"
+        class="cta__image"
+      />
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .cta {
+    background-color: $color-primary;
+    padding: $spacing-section;
+  }
+
+  .cta__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: $spacing-section;
+    align-items: center;
+  }
+
+  .cta__left {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+
+  .cta__title {
+    font-family: $font-family-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: $color-text-dark;
+    margin: 0;
+  }
+
+  .cta__em {
+    font-style: italic;
+  }
+
+  .cta__description {
+    font-family: $font-family;
+    font-size: $font-size-base;
+    line-height: 1.65;
+    color: $color-text-dark;
+    margin: 0;
+    max-width: 480px;
+  }
+
+  .cta__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cta__row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    border-top: 1px solid rgba(7, 5, 35, 0.25);
+    padding: $spacing-sm 0;
+    gap: $spacing-lg;
+    align-items: baseline;
+  }
+
+  .cta__row-key {
+    font-family: $font-family;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(7, 5, 35, 0.65);
+  }
+
+  .cta__row-val {
+    font-family: $font-family-serif;
+    font-size: $font-size-base;
+    color: $color-text-dark;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+
+  .cta__image-wrap {
+    overflow: hidden;
+    align-self: stretch;
+  }
+
+  .cta__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(100%) contrast(1.05);
+  }
+
+  @media (max-width: 900px) {
+    .cta__inner {
+      grid-template-columns: 1fr;
+      gap: $spacing-2xl;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .cta {
+      padding: $spacing-xl;
+    }
+  }
+</style>

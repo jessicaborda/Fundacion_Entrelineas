@@ -9,7 +9,7 @@ export interface Props {
   lang?: string;
 }
 
-const { title, description = 'Astro + Biome', lang = 'es' } = Astro.props;
+const { title, description = 'Fundación Entrelíneas', lang = 'es' } = Astro.props;
 ---
 
 <!doctype html>
@@ -21,6 +21,11 @@ const { title, description = 'Astro + Biome', lang = 'es' } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&f[]=amulya@400,500,600,700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       html {
         scroll-behavior: smooth;
@@ -48,7 +53,6 @@ const { title, description = 'Astro + Biome', lang = 'es' } = Astro.props;
     }
 
     .layout__main {
-      text-align: center;
       flex: 1;
     }
   </style>
