@@ -1,5 +1,5 @@
 
-// Estilos globales
+// Reset básico
 * {
   box-sizing: border-box;
 }
@@ -13,37 +13,28 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: $font-family;
-  color: $color-text;
+  color: $color-text-dark;
 }
 
-main {
-  background-color: $color-secondary;
-}
-// Reset básico para elementos comunes
 h1, h2, h3, h4, h5, h6 {
-  font-family: $font-family;
   margin: 0;
 }
 
 p {
-  font-family: $font-family;
   margin: 0;
 }
 
 a {
-  font-family: $font-family;
   text-decoration: none;
   color: inherit;
 }
 
 button {
-  font-family: $font-family;
   border: none;
   background: none;
   cursor: pointer;
 }
 
 input, textarea, select {
-  font-family: $font-family;
+  font-family: inherit;
 }

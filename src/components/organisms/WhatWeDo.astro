@@ -1,42 +1,194 @@
 ---
-// WhatWeDo component
-import SectionTitle from '../molecules/SectionTitle.astro';
-import IconText from '../atoms/IconText.astro';
+// WhatWeDo — editorial light-background section
+import SectionLabel from '@components/atoms/SectionLabel.astro';
+
+const pillars = [
+  {
+    n: '01',
+    title: 'Lectura y escritura',
+    body: 'Promovemos la lectura y la escritura como herramientas para pensar y hacer la vida cotidiana, más allá de la acumulación de capital cultural.',
+    tag: 'Formación',
+  },
+  {
+    n: '02',
+    title: 'Arte y cultura',
+    body: 'Desarrollamos procesos formativos en literatura, cine, filosofía y artes, dirigidos a todo público sin exigir formación previa.',
+    tag: 'Encuentro',
+  },
+  {
+    n: '03',
+    title: 'Pensamiento crítico',
+    body: 'Espacios de formación política y ciudadana con énfasis en derechos humanos, para que cada persona conquiste su singularidad.',
+    tag: 'Reflexión',
+  },
+  {
+    n: '04',
+    title: 'Tejido social',
+    body: 'Formación de promotores culturales que llevan la lectura al barrio, la escuela y la plaza, sosteniendo la cultura como derecho.',
+    tag: 'Comunidad',
+  },
+  {
+    n: '05',
+    title: 'Festivales y publicaciones',
+    body: 'La Fiesta del libro, los Cuadernos críticos y el Podcast Entrelíneas llevan el pensamiento más allá de la sala.',
+    tag: 'Festival',
+  },
+  {
+    n: '06',
+    title: 'Democracia y participación',
+    body: 'Apostamos porque todo sujeto contribuya a la construcción de una democracia plena, material y espiritual.',
+    tag: 'Ciudadanía',
+  },
+];
 ---
 
-<div class="what-we-do">
-  <SectionTitle orientation="right">
-    <h2 class="what-we-do__title">Lo que nos mueve</h2>
-    <p>Lectura, arte y pensamiento crítico para transformar el mundo.</p>
-  </SectionTitle>
-  <div class="what-we-do__content">
-    <IconText
-      icon="/Fundacion_Entrelineas/icons/icon_01.svg"
-      description="Lectura que transforma"
-      textClass="La lectura es una herramienta de crecimiento personal and colectivo. Queremos acercar los libros a todas las personas and crear espacios de reflexión compartida.">
-    </IconText>
-    <IconText
-      icon="/Fundacion_Entrelineas/icons/icon_02.svg"
-      description="Arte que conecta"
-      textClass="Las artes nos permiten expresarnos and entender el mundo desde múltiples miradas. Buscamos promover la creatividad como puente cultural.">
-    </IconText>
-    <IconText
-      icon="/Fundacion_Entrelineas/icons/icon_03.svg"
-      description="Pensamiento crítico"
-      textClass="Fomentamos el diálogo and la reflexión que nos ayudan a cuestionar, comprender and construir sociedades más justas.">
-    </IconText>
+<section class="what-we-do" id="que-hacemos">
+  <div class="what-we-do__header">
+    <SectionLabel label="Qué hacemos" />
+    <h2 class="what-we-do__title">
+      Procesos de formación, espacios de encuentro y publicaciones
+      que circulan <em class="what-we-do__em">libremente</em>.
+    </h2>
   </div>
-</div>
+
+  <div class="what-we-do__grid">
+    {pillars.map(p => (
+      <article class="pillar-card">
+        <div class="pillar-card__top">
+          <span class="pillar-card__tag">{p.tag}</span>
+          <span class="pillar-card__n">{p.n}</span>
+        </div>
+        <h3 class="pillar-card__title">{p.title}</h3>
+        <p class="pillar-card__body">{p.body}</p>
+      </article>
+    ))}
+  </div>
+</section>
 
 <style lang="scss">
   .what-we-do {
+    background-color: $color-editorial;
+    padding: $spacing-section;
   }
 
-  .what-we-do__content {
-    height: 200px;
+  .what-we-do__header {
+    max-width: 1120px;
+    margin: 0 auto $spacing-2xl;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-2xl;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .what-we-do__title {
+    font-family: $font-family-serif;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: $color-text-dark;
+    margin: 0;
+    max-width: 720px;
+  }
+
+  .what-we-do__em {
+    font-style: italic;
+    color: $color-text-dark;
+  }
+
+  .what-we-do__grid {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid $color-text-dark;
+    border-left: 1px solid $color-text-dark;
+  }
+
+  .pillar-card {
+    border-right: 1px solid $color-text-dark;
+    border-bottom: 1px solid $color-text-dark;
+    padding: $spacing-xl $spacing-lg;
+    min-height: 220px;
+    background: $color-editorial;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $spacing-md;
+    transition: background 0.25s ease;
+
+    &:hover {
+      background: $color-primary;
+
+      .pillar-card__tag {
+        background: $color-text-dark;
+        color: $color-primary;
+        border-color: transparent;
+      }
+
+      .pillar-card__body {
+        color: rgba(7, 5, 35, 0.75);
+      }
+    }
+  }
+
+  .pillar-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .pillar-card__tag {
+    font-family: $font-family;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $color-text-dark;
+    border: 1px solid $color-text-dark;
+    padding: 0.25rem 0.625rem;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  .pillar-card__n {
+    font-family: $font-family-serif;
+    font-style: italic;
+    font-size: 0.875rem;
+    color: rgba(7, 5, 35, 0.4);
+  }
+
+  .pillar-card__title {
+    font-family: $font-family-serif;
+    font-weight: 500;
+    font-size: $font-size-2xl;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: $color-text-dark;
+    margin: 0;
+    flex: 1;
+  }
+
+  .pillar-card__body {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    line-height: 1.6;
+    color: rgba(7, 5, 35, 0.65);
+    margin: 0;
+    transition: color 0.25s ease;
+  }
+
+  @media (max-width: 900px) {
+    .what-we-do__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .what-we-do {
+      padding: $spacing-xl;
+    }
+
+    .what-we-do__grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

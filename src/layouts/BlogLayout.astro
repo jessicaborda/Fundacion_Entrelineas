@@ -1,0 +1,211 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  author?: string;
+  pubDate?: Date;
+  category?: string;
+}
+
+const { title, description, author, pubDate, category } = Astro.props;
+
+const formattedDate = pubDate?.toLocaleDateString('es-CO', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={`${title} | Blog Entrelíneas`} description={description}>
+  <div class="blog-post">
+
+    <div class="blog-post__hero">
+      <div class="blog-post__hero-inner">
+        <a href="/Fundacion_Entrelineas/blog/" class="blog-post__back">← Volver al blog</a>
+        {category && <span class="blog-post__category">{category}</span>}
+        <h1 class="blog-post__title">{title}</h1>
+        <div class="blog-post__meta">
+          {author && <span class="blog-post__author">{author}</span>}
+          {pubDate && <time class="blog-post__date" datetime={pubDate.toISOString()}>{formattedDate}</time>}
+        </div>
+      </div>
+    </div>
+
+    <div class="blog-post__body">
+      <div class="blog-post__content">
+        <slot />
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style lang="scss">
+  .blog-post {
+    background-color: $color-editorial;
+    min-height: 100vh;
+  }
+
+  // Hero
+  .blog-post__hero {
+    padding: $spacing-section;
+    border-bottom: 1px solid rgba(7, 5, 35, 0.08);
+  }
+
+  .blog-post__hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .blog-post__back {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $color-text-dark;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: $color-primary;
+    text-decoration-thickness: 2px;
+    transition: opacity 0.2s ease;
+
+    &:hover { opacity: 0.7; }
+  }
+
+  .blog-post__category {
+    display: inline-block;
+    background: $color-primary;
+    color: $color-text-dark;
+    font-family: $font-family;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem $spacing-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    width: fit-content;
+  }
+
+  .blog-post__title {
+    font-family: $font-family-serif;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: $color-text-dark;
+    margin: 0;
+  }
+
+  .blog-post__meta {
+    display: flex;
+    gap: $spacing-lg;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: $spacing-md;
+    border-top: 1px solid rgba(7, 5, 35, 0.1);
+  }
+
+  .blog-post__author,
+  .blog-post__date {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    color: rgba(7, 5, 35, 0.5);
+  }
+
+  // Cuerpo del post
+  .blog-post__body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: $spacing-section $spacing-xl;
+  }
+
+  .blog-post__content {
+    font-family: $font-family;
+    font-size: $font-size-lg;
+    line-height: 1.75;
+    color: rgba(7, 5, 35, 0.85);
+
+    :global(h2) {
+      font-family: $font-family-serif;
+      font-size: $font-size-3xl;
+      font-weight: 500;
+      color: $color-text-dark;
+      margin: $spacing-2xl 0 $spacing-md;
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+    }
+
+    :global(h3) {
+      font-family: $font-family-heading;
+      font-size: $font-size-xl;
+      font-weight: 600;
+      color: $color-text-dark;
+      margin: $spacing-xl 0 $spacing-sm;
+    }
+
+    :global(p) {
+      margin: 0 0 $spacing-lg;
+    }
+
+    :global(strong) {
+      font-weight: 700;
+      color: $color-text-dark;
+    }
+
+    :global(em) {
+      font-style: italic;
+    }
+
+    :global(a) {
+      color: $color-text-dark;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: $color-primary;
+      text-decoration-thickness: 2px;
+      transition: opacity 0.2s ease;
+
+      &:hover { opacity: 0.7; }
+    }
+
+    :global(blockquote) {
+      border-left: 4px solid $color-primary;
+      padding: $spacing-md $spacing-xl;
+      margin: $spacing-xl 0;
+      background: #ffffff;
+      font-style: italic;
+      color: rgba(7, 5, 35, 0.7);
+    }
+
+    :global(ul),
+    :global(ol) {
+      padding-left: $spacing-xl;
+      margin: 0 0 $spacing-lg;
+
+      :global(li) {
+        margin-bottom: $spacing-sm;
+      }
+    }
+
+    :global(hr) {
+      border: none;
+      border-top: 1px solid rgba(7, 5, 35, 0.12);
+      margin: $spacing-2xl 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .blog-post__hero {
+      padding: $spacing-xl;
+    }
+
+    .blog-post__body {
+      padding: $spacing-xl;
+    }
+  }
+</style>

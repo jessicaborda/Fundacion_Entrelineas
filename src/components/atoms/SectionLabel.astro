@@ -1,0 +1,49 @@
+---
+export interface Props {
+  label: string;
+  light?: boolean;
+}
+const { label, light = false } = Astro.props;
+---
+
+<div class:list={['section-label', { 'section-label--light': light }]}>
+  <span class="section-label__line" />
+  <span class="section-label__text">{label}</span>
+</div>
+
+<style lang="scss">
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+
+    &__line {
+      display: block;
+      height: 1px;
+      width: 2rem;
+      background: currentColor;
+      opacity: 0.35;
+    }
+
+    &__text {
+      font-family: $font-family-heading;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    &--light &__line {
+      background: $color-editorial;
+      opacity: 1;
+    }
+
+    &--light &__text {
+      color: $color-editorial;
+    }
+
+    &:not(&--light) &__text {
+      color: $color-text-dark;
+    }
+  }
+</style>
