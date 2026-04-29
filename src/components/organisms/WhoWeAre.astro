@@ -3,12 +3,12 @@
 import SectionLabel from '@components/atoms/SectionLabel.astro';
 
 const timeline = [
-  { y: '2010', t: 'Un colectivo', d: 'Estudiantes y lectores se reúnen alrededor de un libro. Empiezan las primeras tertulias en Tunja.' },
-  { y: '2013', t: 'Primer festival', d: 'La conversación sale de la sala y llega a la plaza. Nace el ritual público de la Fiesta del Libro.' },
-  { y: '2015', t: 'Fundación legal', d: 'El colectivo se constituye como Fundación Cultural Entrelíneas con personería jurídica.' },
-  { y: '2018', t: 'Escuela de promotores', d: 'Se abre el programa de formación de promotores culturales, 6 meses de formación intensiva.' },
-  { y: '2021', t: 'Voz digital', d: 'Llega el podcast y los contenidos en línea. La lectura cruza la pantalla.' },
-  { y: 'Hoy', t: 'Comunidad viva', d: 'Una red de lectores, escritores y mediadores que sostienen la cultura como derecho.' },
+  { y: '2010', t: 'Un colectivo', d: 'El Colectivo Cultural Estanislao Zuleta reúne estudiantes universitarios para procesos de formación en literatura, cine y filosofía abiertos a todo público.' },
+  { y: '2015', t: 'Fundación legal', d: 'El colectivo se constituye como Fundación Cultural Entrelíneas el 23 de febrero, manteniendo su propósito de formación sin exigir conocimiento previo.' },
+  { y: '2017', t: 'Festival del libro', d: 'Nace el Festival del libro y la lectura, evento anual que combina feria del libro con programación cultural gratuita y convoca públicos de todas las edades.' },
+  { y: '2018', t: 'Nueva generación', d: 'Se consolida una tercera generación surgida de las actividades abiertas al público, que refuerza los procesos de formación interna.' },
+  { y: '2020', t: 'Voz digital', d: 'Entrelíneas llega a YouTube e Instagram con conferencias, conversatorios, podcast, video ensayos y cápsulas. La lectura cruza la pantalla.' },
+  { y: 'Hoy', t: 'Comunidad viva', d: 'Una red de lectores, escritores y mediadores que sostienen la cultura como derecho en Tunja y más allá.' },
 ];
 ---
 
@@ -23,15 +23,18 @@ const timeline = [
         en que una comunidad decide pensarse a sí misma.
       </h2>
       <p class="manifesto__body">
-        Nacimos como un colectivo de lectores en 2010 y nos volvimos fundación porque la
-        conversación se nos quedó corta en una sala. Hoy somos un espacio abierto donde
-        no se exige formación previa para entrar, solo el deseo de leer, escuchar y
-        escribir con otros.
+        La Fundación Cultural Entrelíneas es una organización cultural que busca contribuir
+        a la formación de ciudadanos críticos capaces de examinar su presente a la luz de
+        una lectura crítica del pasado y una proyección esperanzada del futuro. Nacimos en
+        2010 como un colectivo informal y nos constituimos como fundación en 2015, sin
+        abandonar nuestra apuesta: que cualquier persona, sin importar su formación previa,
+        pueda conquistar su singularidad a través de la cultura.
       </p>
       <p class="manifesto__body">
-        La Fundación Cultural Entrelíneas es un laboratorio de democracia que opera en
-        Tunja, Boyacá. Creemos que los libros, el arte y el pensamiento crítico
-        transforman realidades, y trabajamos para que esa transformación sea colectiva.
+        Operamos en Tunja, Boyacá, como un laboratorio de democracia que articula su
+        actividad alrededor de las manifestaciones culturales —el arte, la filosofía, la
+        literatura, las ciencias sociales— como herramientas para intervenir en el tejido
+        social y radicalizar la democracia en sus dimensiones materiales y espirituales.
       </p>
     </div>
   </div>
@@ -152,12 +155,11 @@ const timeline = [
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $spacing-section;
-    align-items: start;
+    align-items: stretch;
   }
 
   .history__image-wrap {
     position: relative;
-    aspect-ratio: 1 / 1;
     overflow: hidden;
   }
 

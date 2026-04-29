@@ -27,7 +27,6 @@ const images = [
       <button
         class="gallery__btn"
         data-index={i}
-        data-src={img.src}
         aria-label={`Ver imagen: ${img.alt}`}
       >
         <img src={img.src} alt={img.alt} class="gallery__img" loading="lazy" />
@@ -37,40 +36,84 @@ const images = [
 </section>
 
 <!-- Lightbox -->
-<div class="lightbox" id="gallery-lightbox" aria-hidden="true" role="dialog" aria-modal="true">
-  <button class="lightbox__close" id="lightbox-close" aria-label="Cerrar">Cerrar ✕</button>
-  <img class="lightbox__img" id="lightbox-img" src="" alt="" />
+<div class="lightbox" id="gallery-lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Galería de imágenes">
+  <button class="lightbox__close" id="lightbox-close" aria-label="Cerrar">✕</button>
+
+  <button class="lightbox__nav lightbox__nav--prev" id="lightbox-prev" aria-label="Imagen anterior">‹</button>
+  <button class="lightbox__nav lightbox__nav--next" id="lightbox-next" aria-label="Imagen siguiente">›</button>
+
+  <div class="lightbox__track" id="lightbox-track">
+    {images.map((img, i) => (
+      <div class="lightbox__slide" data-index={i}>
+        <img src={img.src} alt={img.alt} class="lightbox__img" />
+      </div>
+    ))}
+  </div>
+
+  <div class="lightbox__counter" id="lightbox-counter">1 / {images.length}</div>
 </div>
 
 <script>
-  const btns = document.querySelectorAll<HTMLButtonElement>('.gallery__btn');
-  const lightbox = document.getElementById('gallery-lightbox')!;
-  const lbImg = document.getElementById('lightbox-img') as HTMLImageElement;
-  const lbClose = document.getElementById('lightbox-close')!;
+  const lightbox   = document.getElementById('gallery-lightbox')!;
+  const track      = document.getElementById('lightbox-track')!;
+  const lbClose    = document.getElementById('lightbox-close')!;
+  const lbPrev     = document.getElementById('lightbox-prev')!;
+  const lbNext     = document.getElementById('lightbox-next')!;
+  const counter    = document.getElementById('lightbox-counter')!;
+  const slides     = Array.from(track.querySelectorAll<HTMLElement>('.lightbox__slide'));
+  const total      = slides.length;
+  let current      = 0;
 
-  btns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const src = btn.dataset.src!;
-      const alt = btn.querySelector('img')!.alt;
-      lbImg.src = src;
-      lbImg.alt = alt;
-      lightbox.classList.add('lightbox--open');
-      lightbox.setAttribute('aria-hidden', 'false');
-    });
-  });
+  function goTo(index: number, animate = true) {
+    current = (index + total) % total;
+    track.scrollTo({ left: current * track.clientWidth, behavior: animate ? 'smooth' : 'instant' });
+    counter.textContent = `${current + 1} / ${total}`;
+    lbPrev.setAttribute('aria-disabled', current === 0 ? 'true' : 'false');
+    lbNext.setAttribute('aria-disabled', current === total - 1 ? 'true' : 'false');
+  }
 
-  const close = () => {
+  function open(index: number) {
+    lightbox.classList.add('lightbox--open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    goTo(index, false);
+    lbClose.focus();
+  }
+
+  function close() {
     lightbox.classList.remove('lightbox--open');
     lightbox.setAttribute('aria-hidden', 'true');
-    lbImg.src = '';
-  };
+  }
+
+  // Sync counter when user swipes on mobile
+  let scrollTimer: ReturnType<typeof setTimeout>;
+  track.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const index = Math.round(track.scrollLeft / track.clientWidth);
+      if (index !== current) {
+        current = index;
+        counter.textContent = `${current + 1} / ${total}`;
+        lbPrev.setAttribute('aria-disabled', current === 0 ? 'true' : 'false');
+        lbNext.setAttribute('aria-disabled', current === total - 1 ? 'true' : 'false');
+      }
+    }, 80);
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.gallery__btn').forEach(btn => {
+    btn.addEventListener('click', () => open(Number(btn.dataset.index)));
+  });
 
   lbClose.addEventListener('click', close);
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) close();
-  });
+  lbPrev.addEventListener('click', () => goTo(current - 1));
+  lbNext.addEventListener('click', () => goTo(current + 1));
+
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox.classList.contains('lightbox--open')) close();
+    if (!lightbox.classList.contains('lightbox--open')) return;
+    if (e.key === 'Escape')     close();
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
   });
 </script>
 
@@ -154,24 +197,49 @@ const images = [
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(7, 5, 35, 0.94);
+    background: rgba(7, 5, 35, 0.96);
     z-index: 1000;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: $spacing-2xl;
-    cursor: zoom-out;
 
     &--open {
       display: flex;
     }
   }
 
+  .lightbox__track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .lightbox__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-2xl 5rem;
+    box-sizing: border-box;
+  }
+
   .lightbox__img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    box-shadow: 0 0 0 4px $color-primary;
-    cursor: default;
+    box-shadow: 0 0 0 3px $color-primary;
+    display: block;
   }
 
   .lightbox__close {
@@ -181,12 +249,57 @@ const images = [
     background: $color-primary;
     color: $color-text-dark;
     border: 0;
-    padding: 0.625rem 1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: $font-family;
-    font-size: $font-size-sm;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    z-index: 1;
+    z-index: 10;
+  }
+
+  .lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: $color-primary;
+    color: $color-text-dark;
+    border: 0;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.2s ease;
+
+    &:hover { opacity: 0.8; }
+
+    &[aria-disabled='true'] {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    &--prev { left: $spacing-lg; }
+    &--next { right: $spacing-lg; }
+  }
+
+  .lightbox__counter {
+    position: absolute;
+    bottom: $spacing-lg;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: $font-family;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   @media (max-width: 768px) {
@@ -203,6 +316,14 @@ const images = [
     .gallery__btn:nth-child(8) {
       grid-column: span 1;
       grid-row: span 1;
+    }
+
+    .lightbox__nav {
+      display: none;
+    }
+
+    .lightbox__slide {
+      padding: 4rem $spacing-lg $spacing-2xl;
     }
   }
 </style>

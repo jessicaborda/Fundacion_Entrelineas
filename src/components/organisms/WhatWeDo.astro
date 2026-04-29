@@ -6,37 +6,37 @@ const pillars = [
   {
     n: '01',
     title: 'Lectura y escritura',
-    body: 'Promovemos la lectura y la escritura como herramientas para pensar y hacer la vida cotidiana, más allá de la acumulación de capital cultural.',
+    body: 'Promovemos la lectura y la escritura como herramientas para pensar y hacer la vida cotidiana, más allá de la acumulación de capital cultural, en espacios convencionales y no convencionales.',
     tag: 'Formación',
   },
   {
     n: '02',
     title: 'Arte y cultura',
-    body: 'Desarrollamos procesos formativos en literatura, cine, filosofía y artes, dirigidos a todo público sin exigir formación previa.',
+    body: 'Desarrollamos procesos formativos rigurosos en literatura, cine, filosofía y artes, dirigidos a todo público sin exigir formación previa.',
     tag: 'Encuentro',
   },
   {
     n: '03',
     title: 'Pensamiento crítico',
-    body: 'Espacios de formación política y ciudadana con énfasis en derechos humanos, para que cada persona conquiste su singularidad.',
+    body: 'Generamos espacios de formación política y ciudadana con énfasis en derechos humanos, para que cada persona conquiste activamente su singularidad.',
     tag: 'Reflexión',
   },
   {
     n: '04',
-    title: 'Tejido social',
-    body: 'Formación de promotores culturales que llevan la lectura al barrio, la escuela y la plaza, sosteniendo la cultura como derecho.',
+    title: 'Promotores de lectura',
+    body: 'Formamos promotores culturales que multiplican el impacto en el tejido social de Tunja, llevando la lectura al barrio, la escuela y la plaza.',
     tag: 'Comunidad',
   },
   {
     n: '05',
-    title: 'Festivales y publicaciones',
-    body: 'La Fiesta del libro, los Cuadernos críticos y el Podcast Entrelíneas llevan el pensamiento más allá de la sala.',
+    title: 'Festivales y divulgación',
+    body: 'El Festival del libro y la lectura, el proyecto Pensar desde Colombia y nuestros contenidos en YouTube e Instagram llevan el pensamiento más allá de la sala.',
     tag: 'Festival',
   },
   {
     n: '06',
     title: 'Democracia y participación',
-    body: 'Apostamos porque todo sujeto contribuya a la construcción de una democracia plena, material y espiritual.',
+    body: 'Apostamos porque todo sujeto contribuya a la construcción de una democracia plena en sus dimensiones materiales y espirituales.',
     tag: 'Ciudadanía',
   },
 ];
@@ -184,11 +184,36 @@ const pillars = [
 
   @media (max-width: 600px) {
     .what-we-do {
-      padding: $spacing-xl;
+      padding: $spacing-xl 0;
+    }
+
+    .what-we-do__header {
+      padding: 0 $spacing-lg;
     }
 
     .what-we-do__grid {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: row;
+      max-width: none;
+      margin: 0;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: $spacing-lg;
+      -webkit-overflow-scrolling: touch;
+      border-top: none;
+      border-left: none;
+      padding-left: $spacing-lg;
+    }
+
+    .pillar-card {
+      flex: 0 0 75vw;
+      scroll-snap-align: start;
+      border-top: 1px solid $color-text-dark;
+      border-left: 1px solid $color-text-dark;
+
+      &:last-child {
+        margin-right: $spacing-lg;
+      }
     }
   }
 </style>
