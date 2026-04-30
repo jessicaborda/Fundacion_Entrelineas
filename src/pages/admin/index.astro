@@ -1,0 +1,463 @@
+---
+// Blog Admin Panel — UI only, backend pendiente
+const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
+
+const mockPosts = [
+  { id: 1, title: 'La lectura como acto político', author: 'Miguel Ángel Palacios Quitián', category: 'Ensayo', pubDate: '2025-09-15', featured: true, status: 'published' },
+  { id: 2, title: 'Pensar desde Colombia', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-10-02', featured: false, status: 'published' },
+  { id: 3, title: 'Pequeños relatos, grandes joyas', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-08-20', featured: false, status: 'draft' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Entrelíneas</title>
+  <link rel="icon" href="/Fundacion_Entrelineas/logo.svg" />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link
+    href="https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&f[]=amulya@400,500,600,700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:      #FBD200;
+      --dark:         #070523;
+      --editorial:    #f2f2f2;
+      --white:        #ffffff;
+      --muted:        rgba(7,5,35,0.45);
+      --border:       rgba(7,5,35,0.1);
+      --danger:       #c0392b;
+      --success:      #1a7a4a;
+      --sidebar-w:    240px;
+      --font:         'Inter', system-ui, sans-serif;
+      --font-heading: 'Chillax', sans-serif;
+      --font-serif:   'Amulya', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--editorial);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar__brand {
+      padding: 1.5rem 1.25rem 1.125rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar__logo { height: 34px; width: auto; }
+
+    .sidebar__label {
+      font-family: var(--font-heading);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      margin-top: 0.625rem;
+    }
+
+    .sidebar__nav {
+      flex: 1;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .sidebar__link {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.625rem 1.25rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-family: var(--font-heading);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border-left: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .sidebar__link:hover {
+      color: var(--white);
+      border-left-color: rgba(251,210,0,0.5);
+      background: rgba(255,255,255,0.04);
+    }
+    .sidebar__link--active {
+      color: var(--primary);
+      border-left-color: var(--primary);
+      background: rgba(251,210,0,0.06);
+    }
+
+    .sidebar__icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+
+    .sidebar__divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 0.5rem 1.25rem;
+    }
+
+    .sidebar__footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--white);
+      border-bottom: 2px solid var(--dark);
+      padding: 0.875rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0; z-index: 10;
+      gap: 1rem;
+    }
+
+    .topbar__title {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .topbar__actions { display: flex; gap: 0.625rem; align-items: center; }
+
+    .content { padding: 2rem; flex: 1; }
+
+    /* ── Botones ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.125rem;
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn--primary { background: var(--dark); color: var(--primary); }
+    .btn--outline { background: none; border: 1px solid var(--dark); color: var(--dark); }
+    .btn--ghost   { background: none; border: 1px solid var(--border); color: var(--muted); }
+    .btn--ghost:hover { border-color: var(--dark); color: var(--dark); opacity: 1; }
+    .btn--danger  { background: var(--danger); color: var(--white); }
+    .btn--sm { padding: 0.35rem 0.75rem; font-size: 0.72rem; }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--dark);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .stat-card__n {
+      font-family: var(--font-serif);
+      font-size: 2.25rem;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--dark);
+    }
+
+    .stat-card__label {
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat-card--accent { border-top-color: var(--primary); }
+    .stat-card--accent .stat-card__n { color: var(--dark); }
+
+    /* ── Tabla ── */
+    .table-wrap {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--dark);
+      overflow-x: auto;
+    }
+
+    .table-toolbar {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .table-toolbar__title {
+      font-family: var(--font-heading);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .search-input {
+      padding: 0.425rem 0.875rem;
+      border: 1px solid var(--border);
+      border-bottom: 2px solid rgba(7,5,35,0.2);
+      font-family: var(--font);
+      font-size: 0.8rem;
+      color: var(--dark);
+      background: var(--editorial);
+      width: 220px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus { border-color: var(--dark); border-bottom-color: var(--primary); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+
+    th {
+      text-align: left;
+      padding: 0.625rem 1rem;
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      background: var(--editorial);
+    }
+
+    td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(251,210,0,0.04); }
+
+    .td-title { font-family: var(--font-heading); font-weight: 600; color: var(--dark); max-width: 280px; }
+    .td-meta  { font-family: var(--font); color: var(--muted); white-space: nowrap; }
+    .td-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      font-family: var(--font-heading);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .badge--published { background: rgba(26,122,74,0.1);  color: var(--success); }
+    .badge--draft     { background: rgba(7,5,35,0.06);    color: var(--muted); }
+    .badge--featured  { background: var(--primary);       color: var(--dark); }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(7,5,35,0.7); z-index: 300;
+      align-items: center; justify-content: center;
+    }
+    .modal-backdrop--open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-top: 4px solid var(--danger);
+      padding: 2rem;
+      max-width: 420px; width: 90%;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .modal__title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500; }
+    .modal__body  { font-family: var(--font); font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+    .modal__actions { display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 0.5rem; }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="/Fundacion_Entrelineas/logo-light.svg" alt="Entrelíneas" class="sidebar__logo" />
+      <p class="sidebar__label">Administración</p>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="/Fundacion_Entrelineas/admin/" class="sidebar__link sidebar__link--active">
+        <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M8.385 12.308H15.615V11.308H8.385V12.308ZM8.385 15.077H15.615V14.077H8.385V15.077ZM8.385 17.847H12.615V16.847H8.385V17.847ZM5 21V3H14.5L19 7.5V21H5ZM14 8H18L14 4V8Z" fill="currentColor"/>
+        </svg>
+        Publicaciones
+      </a>
+      <a href="/Fundacion_Entrelineas/admin/new" class="sidebar__link">
+        <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/>
+        </svg>
+        Nueva entrada
+      </a>
+      <div class="sidebar__divider"></div>
+      <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="sidebar__link">
+        <span class="sidebar__icon">↗</span> Ver blog
+      </a>
+    </nav>
+    <div class="sidebar__footer">Entrelíneas © 2025</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <span class="topbar__title">Publicaciones del blog</span>
+      <div class="topbar__actions">
+        <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="btn btn--ghost btn--sm">Ver blog →</a>
+        <a href="/Fundacion_Entrelineas/admin/new" class="btn btn--primary btn--sm">✦ Nueva entrada</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-card__n">3</span>
+          <span class="stat-card__label">Total publicaciones</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__n">2</span>
+          <span class="stat-card__label">Publicadas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__n">1</span>
+          <span class="stat-card__label">Borradores</span>
+        </div>
+        <div class="stat-card stat-card--accent">
+          <span class="stat-card__n">1</span>
+          <span class="stat-card__label">Destacadas</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <span class="table-toolbar__title">Todas las entradas</span>
+          <input class="search-input" type="text" placeholder="Buscar por título…" id="search-input" />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Autor</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="posts-tbody">
+            {mockPosts.map(post => (
+              <tr data-title={post.title.toLowerCase()}>
+                <td class="td-title">
+                  {post.title}
+                  {post.featured && <span class="badge badge--featured" style="margin-left:0.5rem">Destacada</span>}
+                </td>
+                <td class="td-meta">{post.category}</td>
+                <td class="td-meta">{post.author}</td>
+                <td class="td-meta">{post.pubDate}</td>
+                <td>
+                  <span class={`badge badge--${post.status}`}>
+                    {post.status === 'published' ? 'Publicada' : 'Borrador'}
+                  </span>
+                </td>
+                <td class="td-actions">
+                  <a href={`/Fundacion_Entrelineas/admin/edit/${post.id}`} class="btn btn--outline btn--sm">Editar</a>
+                  <button class="btn btn--ghost btn--sm" onclick="openDeleteModal(this)" data-title={post.title}>Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="delete-modal">
+    <div class="modal">
+      <h2 class="modal__title">¿Eliminar esta entrada?</h2>
+      <p class="modal__body">
+        "<strong id="delete-modal-title"></strong>" será eliminada permanentemente. Esta acción no se puede deshacer.
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn--danger" onclick="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('search-input')?.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#posts-tbody tr').forEach(row => {
+        (row as HTMLElement).style.display = row.dataset.title?.includes(q) ? '' : 'none';
+      });
+    });
+
+    function openDeleteModal(btn: HTMLButtonElement) {
+      document.getElementById('delete-modal-title')!.textContent = btn.dataset.title || '';
+      document.getElementById('delete-modal')!.classList.add('modal-backdrop--open');
+    }
+    function closeDeleteModal() {
+      document.getElementById('delete-modal')!.classList.remove('modal-backdrop--open');
+    }
+    function confirmDelete() {
+      closeDeleteModal();
+      console.log('[Backend pendiente] DELETE /api/posts/:id');
+    }
+  </script>
+
+</body>
+</html>
