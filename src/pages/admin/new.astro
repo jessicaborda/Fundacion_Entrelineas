@@ -1,0 +1,372 @@
+---
+import AdminLayout from '@layouts/AdminLayout.astro';
+
+const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
+const today = new Date().toISOString().split('T')[0];
+---
+
+<AdminLayout title="Nueva entrada" activeNav="new">
+
+  <!-- Topbar -->
+  <header class="topbar" slot="topbar">
+    <div class="topbar__left">
+      <nav class="breadcrumb">
+        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">Nueva entrada</span>
+      </nav>
+    </div>
+    <div class="topbar__actions">
+      <span class="autosave" id="autosave-status">
+        <span class="autosave__dot"></span> Sin cambios
+      </span>
+      <a href="/Fundacion_Entrelineas/admin/" class="btn btn--ghost btn--sm">Cancelar</a>
+      <button class="btn btn--outline btn--sm" onclick="handleSave('draft')">Guardar borrador</button>
+      <button class="btn btn--primary btn--sm" onclick="handleSave('published')">Publicar →</button>
+    </div>
+  </header>
+
+  <!-- Form -->
+  <form id="post-form" onsubmit="return false;" novalidate>
+    <div class="form-grid">
+
+      <!-- ── Columna principal ── -->
+      <div class="form-col">
+
+        <!-- Título + slug -->
+        <div class="card">
+          <span class="card__title">Contenido principal</span>
+
+          <div class="field">
+            <label for="f-title">Título <span class="label-hint">requerido · máx. 120 caracteres</span></label>
+            <input
+              type="text"
+              id="f-title"
+              name="title"
+              placeholder="Ej. La lectura como acto político"
+              maxlength="120"
+              autocomplete="off"
+            />
+            <div class="char-row">
+              <span class="field-hint" id="title-error" style="font-size:0.72rem;color:var(--danger);display:none">Este campo es requerido</span>
+              <span class="char-count" id="count-title">0 / 120</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-slug">Slug (URL) <span class="label-hint">auto-generado · editable</span></label>
+            <div class="slug-row">
+              <span class="slug-row__prefix">/blog/</span>
+              <input type="text" id="f-slug" name="slug" placeholder="la-lectura-como-acto-politico" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-description">
+              Descripción / Extracto <span class="label-hint">requerido · aparece en listados y SEO</span>
+            </label>
+            <textarea
+              id="f-description"
+              name="description"
+              rows="3"
+              placeholder="Breve descripción del artículo que aparecerá en el listado del blog y en los metadatos SEO."
+              maxlength="200"
+              style="min-height:80px;resize:vertical;font-family:var(--font)"
+            ></textarea>
+            <div class="char-row">
+              <span style="font-size:0.72rem;color:var(--danger);display:none" id="desc-error">Este campo es requerido</span>
+              <span class="char-count" id="count-desc">0 / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor de texto -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:1rem 1.5rem 0.75rem;border-bottom:1px solid var(--border)">
+            <span class="card__title" style="border:none;padding:0">Cuerpo del artículo</span>
+          </div>
+          <div id="quill-editor"></div>
+          <input type="hidden" id="f-body" name="body" />
+        </div>
+
+        <!-- Imagen de portada -->
+        <div class="card">
+          <span class="card__title">Imagen de portada <span class="label-hint">opcional · recomendado 1200×630 px</span></span>
+
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('f-cover-file').click()">
+            <input type="file" id="f-cover-file" name="coverFile" accept="image/*" onchange="handleImageSelect(this)" />
+            <div style="font-size:2rem">🖼</div>
+            <p class="upload-area__text">Haz clic para subir una imagen o arrastra aquí<br/><span style="font-size:0.68rem">JPG, PNG, WebP · máx. 2 MB</span></p>
+          </div>
+
+          <div class="upload-preview" id="upload-preview">
+            <img id="upload-preview-img" src="" alt="Vista previa" />
+            <button type="button" class="upload-preview__remove" onclick="removeImage()" title="Eliminar imagen">✕</button>
+          </div>
+
+          <div class="field">
+            <label for="f-cover-url">O pega una URL de imagen</label>
+            <input type="url" id="f-cover-url" name="coverUrl" placeholder="https://ejemplo.com/imagen.jpg" oninput="handleUrlImage(this.value)" />
+          </div>
+
+          <div class="field">
+            <label for="f-cover-alt">Texto alternativo (alt) <span class="label-hint">para accesibilidad y SEO</span></label>
+            <input type="text" id="f-cover-alt" name="coverAlt" placeholder="Descripción breve de la imagen" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Columna lateral ── -->
+      <div class="form-col">
+
+        <!-- Publicación -->
+        <div class="card">
+          <span class="card__title">Publicación</span>
+
+          <div class="field">
+            <label for="f-status">Estado</label>
+            <select id="f-status" name="status">
+              <option value="draft" selected>📝 Borrador</option>
+              <option value="published">✅ Publicado</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="f-pubDate">Fecha de publicación <span class="label-hint">requerido</span></label>
+            <input type="date" id="f-pubDate" name="pubDate" value={today} />
+          </div>
+
+          <div class="toggle-field">
+            <div>
+              <p class="toggle-label">Destacar en portada</p>
+              <p class="toggle-desc">Aparece en la sección principal del blog</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="f-featured" name="featured" />
+              <span class="toggle__track"></span>
+              <span class="toggle__thumb"></span>
+            </label>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <button type="button" class="btn btn--primary" style="width:100%;justify-content:center" onclick="handleSave('published')">
+            Publicar entrada →
+          </button>
+          <button type="button" class="btn btn--outline" style="width:100%;justify-content:center" onclick="handleSave('draft')">
+            Guardar borrador
+          </button>
+        </div>
+
+        <!-- Metadatos -->
+        <div class="card">
+          <span class="card__title">Metadatos</span>
+
+          <div class="field">
+            <label for="f-author">Autor <span class="label-hint">requerido</span></label>
+            <input type="text" id="f-author" name="author" placeholder="Nombre completo del autor" />
+          </div>
+
+          <div class="field">
+            <label for="f-category">Categoría <span class="label-hint">requerido</span></label>
+            <select id="f-category" name="category">
+              {categories.map(c => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Etiquetas <span class="label-hint">Enter o coma para agregar</span></label>
+            <div class="tags-input" id="tags-wrap">
+              <input id="tag-input" type="text" placeholder="Añadir etiqueta…" autocomplete="off" />
+            </div>
+            <input type="hidden" id="f-tags" name="tags" />
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div class="card">
+          <span class="card__title">SEO <span class="label-hint">opcional · override automático</span></span>
+
+          <div class="field">
+            <label for="f-meta-title">Meta título</label>
+            <input type="text" id="f-meta-title" name="metaTitle" placeholder="Título para motores de búsqueda" maxlength="60" oninput="updateCharCount(this, 'count-meta-title', 60)" />
+            <span class="char-count" id="count-meta-title">0 / 60</span>
+          </div>
+
+          <div class="field">
+            <label for="f-meta-desc">Meta descripción</label>
+            <textarea id="f-meta-desc" name="metaDescription" rows="3" placeholder="Descripción para motores de búsqueda" maxlength="155" style="min-height:80px;resize:vertical;font-family:var(--font)" oninput="updateCharCount(this, 'count-meta-desc', 155)"></textarea>
+            <span class="char-count" id="count-meta-desc">0 / 155</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</AdminLayout>
+
+<script>
+  const titleInput = document.getElementById('f-title') as HTMLInputElement;
+  const slugInput  = document.getElementById('f-slug') as HTMLInputElement;
+  const descInput  = document.getElementById('f-description') as HTMLTextAreaElement;
+
+  // ── Editor Quill ──
+  const Quill = (window as any).Quill;
+  const quill = Quill ? new Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Escribe el contenido del artículo aquí...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        ['blockquote'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link'],
+        ['clean']
+      ]
+    }
+  }) : null;
+  quill?.on('text-change', () => markDirty());
+
+  // ── Char count ──
+  function updateCharCount(el: HTMLInputElement | HTMLTextAreaElement, counterId: string, max: number) {
+    const counter = document.getElementById(counterId);
+    if (!counter) return;
+    const len = el.value.length;
+    counter.textContent = `${len} / ${max}`;
+    counter.className = 'char-count' + (len > max * 0.9 ? (len >= max ? ' char-count--over' : ' char-count--warn') : '');
+  }
+
+  titleInput?.addEventListener('input', () => {
+    updateCharCount(titleInput, 'count-title', 120);
+    if (!slugInput.dataset.manual) updateSlug(titleInput.value);
+    markDirty();
+  });
+
+  descInput?.addEventListener('input', () => {
+    updateCharCount(descInput, 'count-desc', 200);
+    markDirty();
+  });
+
+  // ── Slug ──
+  function updateSlug(title: string) {
+    const slug = title.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-');
+    if (slugInput) slugInput.value = slug;
+  }
+
+  slugInput?.addEventListener('input', () => { slugInput.dataset.manual = 'true'; markDirty(); });
+
+  // ── Imagen de portada ──
+  function handleImageSelect(input: HTMLInputElement) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => showImagePreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function handleUrlImage(url: string) {
+    if (url.match(/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i)) showImagePreview(url);
+  }
+
+  function showImagePreview(src: string) {
+    const area    = document.getElementById('upload-area')!;
+    const preview = document.getElementById('upload-preview')!;
+    const img     = document.getElementById('upload-preview-img') as HTMLImageElement;
+    area.style.display    = 'none';
+    preview.style.display = 'block';
+    img.src = src;
+  }
+
+  function removeImage() {
+    const area      = document.getElementById('upload-area')!;
+    const preview   = document.getElementById('upload-preview')!;
+    const fileInput = document.getElementById('f-cover-file') as HTMLInputElement;
+    const urlInput  = document.getElementById('f-cover-url') as HTMLInputElement;
+    area.style.display    = 'block';
+    preview.style.display = 'none';
+    fileInput.value = '';
+    urlInput.value  = '';
+  }
+
+  // ── Drag & drop ──
+  const uploadArea = document.getElementById('upload-area');
+  uploadArea?.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--dark)'; });
+  uploadArea?.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+  uploadArea?.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '';
+    const file = e.dataTransfer?.files[0];
+    if (file?.type.startsWith('image/')) {
+      const input = document.getElementById('f-cover-file') as HTMLInputElement;
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handleImageSelect(input);
+    }
+  });
+
+  // ── Tags ──
+  const tagManager = window.TagManager('tags-wrap', 'f-tags');
+  tagManager.init();
+
+  // ── Dirty state / autosave ──
+  let isDirty = false;
+  function markDirty() {
+    if (!isDirty) {
+      isDirty = true;
+      const el = document.getElementById('autosave-status');
+      if (el) el.innerHTML = '<span class="autosave__dot"></span> Cambios sin guardar';
+    }
+  }
+
+  // ── Validación ──
+  function validate(): boolean {
+    const titleErr = document.getElementById('title-error')!;
+    const descErr  = document.getElementById('desc-error')!;
+    titleErr.style.display = titleInput?.value.trim() ? 'none' : 'inline';
+    descErr.style.display  = descInput?.value.trim()  ? 'none' : 'inline';
+    return !!(titleInput?.value.trim() && descInput?.value.trim());
+  }
+
+  // ── Guardar (placeholder backend) ──
+  function handleSave(status: string) {
+    if (!validate()) { window.showToast('Completa los campos requeridos'); return; }
+    const data = {
+      title:           titleInput?.value,
+      slug:            slugInput?.value,
+      description:     descInput?.value,
+      body:            quill ? quill.root.innerHTML : '',
+      author:          (document.getElementById('f-author') as HTMLInputElement)?.value,
+      category:        (document.getElementById('f-category') as HTMLSelectElement)?.value,
+      pubDate:         (document.getElementById('f-pubDate') as HTMLInputElement)?.value,
+      featured:        (document.getElementById('f-featured') as HTMLInputElement)?.checked,
+      tags:            (document.getElementById('f-tags') as HTMLInputElement)?.value,
+      status,
+      metaTitle:       (document.getElementById('f-meta-title') as HTMLInputElement)?.value,
+      metaDescription: (document.getElementById('f-meta-desc') as HTMLTextAreaElement)?.value,
+      coverUrl:        (document.getElementById('f-cover-url') as HTMLInputElement)?.value,
+      coverAlt:        (document.getElementById('f-cover-alt') as HTMLInputElement)?.value,
+    };
+    console.log('[Backend pendiente] POST /api/posts', data);
+    isDirty = false;
+    const el = document.getElementById('autosave-status');
+    if (el) { el.className = 'autosave autosave--saved'; el.innerHTML = '<span class="autosave__dot"></span> Guardado'; }
+    window.showToast(status === 'published' ? 'Entrada publicada correctamente' : 'Borrador guardado');
+  }
+
+  // ── Prevenir salida con cambios ──
+  window.addEventListener('beforeunload', e => { if (isDirty) e.preventDefault(); });
+
+  // Expose to global scope for inline event handlers (script runs as ES module)
+  (window as any).handleSave        = handleSave;
+  (window as any).handleImageSelect = handleImageSelect;
+  (window as any).handleUrlImage    = handleUrlImage;
+  (window as any).removeImage       = removeImage;
+  (window as any).updateCharCount   = updateCharCount;
+</script>

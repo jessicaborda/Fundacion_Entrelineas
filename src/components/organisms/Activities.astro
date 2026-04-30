@@ -171,11 +171,35 @@ const activities = [
 
   @media (max-width: 600px) {
     .activities {
-      padding: $spacing-xl;
+      padding: $spacing-xl 0;
+    }
+
+    .activities__header {
+      padding: 0 $spacing-lg;
     }
 
     .activities__grid {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: row;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: $spacing-lg;
+      -webkit-overflow-scrolling: touch;
+      border-top: none;
+      border-left: none;
+      padding-left: $spacing-lg;
+      gap: 0;
+    }
+
+    .act-card {
+      flex: 0 0 75vw;
+      scroll-snap-align: start;
+      border-top: 1px solid rgba(7, 5, 35, 0.12);
+      border-left: 1px solid rgba(7, 5, 35, 0.12);
+
+      &:last-child {
+        margin-right: $spacing-lg;
+      }
     }
   }
 </style>

@@ -56,6 +56,7 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
   .cta {
     background-color: $color-primary;
     padding: $spacing-section;
+    overflow: hidden;
   }
 
   .cta__inner {
@@ -125,6 +126,9 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
     font-size: $font-size-base;
     color: $color-text-dark;
     text-decoration: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
 
     &:hover {
       text-decoration: underline;
@@ -150,11 +154,26 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
       grid-template-columns: 1fr;
       gap: $spacing-2xl;
     }
+
+    .cta__image-wrap {
+      align-self: auto;
+      aspect-ratio: 4 / 5;
+      width: 100%;
+    }
+
+    .cta__image {
+      height: 100%;
+    }
   }
 
   @media (max-width: 600px) {
     .cta {
-      padding: $spacing-xl;
+      padding: $spacing-xl $spacing-lg;
+    }
+
+    .cta__row {
+      grid-template-columns: 90px 1fr;
+      gap: $spacing-md;
     }
   }
 </style>

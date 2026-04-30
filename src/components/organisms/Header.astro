@@ -2,7 +2,7 @@
 // Header — editorial sticky nav
 ---
 
-<div class="header">
+<div class="header" id="site-header">
   <div class="header__inner">
     <a href="/Fundacion_Entrelineas/" class="header__logo">
       <img
@@ -12,7 +12,19 @@
       />
     </a>
 
-    <nav class="header__nav">
+    <button
+      class="header__burger"
+      id="burger-btn"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="main-nav"
+    >
+      <span class="header__burger-bar"></span>
+      <span class="header__burger-bar"></span>
+      <span class="header__burger-bar"></span>
+    </button>
+
+    <nav class="header__nav" id="main-nav">
       <a href="/Fundacion_Entrelineas/#quienes-somos" class="header__nav-link">Quiénes somos</a>
       <a href="/Fundacion_Entrelineas/#que-hacemos" class="header__nav-link">Qué hacemos</a>
       <a href="/Fundacion_Entrelineas/#actividades" class="header__nav-link">Actividades</a>
@@ -25,6 +37,27 @@
     </nav>
   </div>
 </div>
+
+<script>
+  const btn = document.getElementById('burger-btn');
+  const nav = document.getElementById('main-nav');
+
+  btn?.addEventListener('click', () => {
+    const isOpen = nav?.classList.toggle('header__nav--open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+    btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+    btn.classList.toggle('header__burger--open', isOpen);
+  });
+
+  nav?.querySelectorAll('.header__nav-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('header__nav--open');
+      btn?.setAttribute('aria-expanded', 'false');
+      btn?.setAttribute('aria-label', 'Abrir menú');
+      btn?.classList.remove('header__burger--open');
+    });
+  });
+</script>
 
 <style lang="scss">
   .header {
@@ -59,6 +92,41 @@
   .header__logo-img {
     height: 40px;
     width: auto;
+  }
+
+  .header__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.375rem;
+    flex-shrink: 0;
+  }
+
+  .header__burger-bar {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: $color-text-dark;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: center;
+  }
+
+  .header__burger--open {
+    .header__burger-bar:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .header__burger-bar:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    .header__burger-bar:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
   }
 
   .header__nav {
@@ -126,15 +194,42 @@
 
   @media (max-width: 768px) {
     .header__inner {
-      flex-direction: column;
-      gap: $spacing-sm;
+      flex-wrap: wrap;
       padding: $spacing-md $spacing-lg;
-      align-items: flex-start;
+      gap: 0;
+    }
+
+    .header__burger {
+      display: flex;
     }
 
     .header__nav {
-      justify-content: flex-start;
-      gap: $spacing-sm;
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      width: 100%;
+      padding: $spacing-sm 0 $spacing-md;
+
+      &--open {
+        display: flex;
+      }
+    }
+
+    .header__nav-link {
+      width: 100%;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(7, 5, 35, 0.08);
+      font-size: $font-size-sm;
+      white-space: normal;
+
+      &--cta {
+        margin-top: $spacing-sm;
+        width: auto;
+        align-self: flex-start;
+        border-bottom: none;
+        padding: 0.625rem 1.125rem;
+      }
     }
   }
 </style>

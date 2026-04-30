@@ -7,7 +7,7 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
   <!-- Team -->
   <div class="team">
     <div class="team__inner">
-      <SectionLabel label="Quienes soñaron Entrelíneas" />
+      <SectionLabel label="Quienes soñaron Entrelíneas" light={true} />
       <h2 class="team__title">
         Investigadores, docentes y gestores haciendo
         de la lectura un <em class="team__em">puente</em>.
@@ -21,7 +21,6 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
               alt="Miguel Ángel Palacios Quitián"
               class="team__img"
             />
-            <span class="team__num">01</span>
           </div>
           <h3 class="team__name">Miguel Ángel Palacios Quitián</h3>
           <p class="team__role">Director General</p>
@@ -147,20 +146,7 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
     display: block;
   }
 
-  .team__num {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    background: $color-primary;
-    color: $color-text-dark;
-    font-family: $font-family;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    padding: 0.375rem 0.625rem;
-  }
-
-  .team__name {
+.team__name {
     font-family: $font-family-serif;
     font-weight: 500;
     font-size: $font-size-xl;
@@ -306,7 +292,6 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
   @media (max-width: 900px) {
     .team__cards {
       grid-template-columns: 1fr;
-      max-width: 400px;
     }
 
     .partners__grid {
@@ -324,9 +309,81 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
   }
 
   @media (max-width: 600px) {
-    .team,
+    .team {
+      padding: $spacing-xl 0;
+    }
+
+    .team__inner {
+      gap: $spacing-lg;
+    }
+
+    .team__inner :global(.section-label) {
+      padding-left: $spacing-lg;
+    }
+
+    .team__title {
+      padding-left: $spacing-lg;
+    }
+
+    .team__cards {
+      display: flex;
+      flex-direction: row;
+      max-width: none;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: $spacing-lg;
+      -webkit-overflow-scrolling: touch;
+      padding-left: $spacing-lg;
+      gap: $spacing-xl;
+    }
+
+    .team__card {
+      flex: 0 0 72vw;
+      scroll-snap-align: start;
+
+      &:last-child {
+        margin-right: $spacing-lg;
+      }
+    }
+
     .partners {
-      padding: $spacing-xl;
+      padding: $spacing-xl 0;
+    }
+
+    .partners__inner {
+      gap: $spacing-lg;
+    }
+
+    .partners__inner :global(.section-label) {
+      padding-left: $spacing-lg;
+    }
+
+    .partners__title {
+      padding-left: $spacing-lg;
+    }
+
+    .partners__grid {
+      display: flex;
+      flex-direction: row;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: $spacing-lg;
+      -webkit-overflow-scrolling: touch;
+      padding-left: $spacing-lg;
+      gap: $spacing-lg;
+    }
+
+    .partners__card {
+      flex: 0 0 82vw;
+      scroll-snap-align: start;
+
+      &:last-child {
+        margin-right: $spacing-lg;
+      }
+    }
+
+    .partners__socials {
+      justify-self: center;
     }
   }
 </style>

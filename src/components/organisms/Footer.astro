@@ -38,7 +38,7 @@
 
     <div class="footer__col">
       <h4 class="footer__col-heading">Síguenos</h4>
-      <ul class="footer__list">
+      <ul class="footer__list footer__list--row">
         <li><a href="https://www.instagram.com/fundacio_entrelineas" target="_blank" rel="noopener" class="footer__link">Instagram</a></li>
         <li><a href="https://www.facebook.com/FundacionEntrelineas" target="_blank" rel="noopener" class="footer__link">Facebook</a></li>
       </ul>
@@ -168,16 +168,51 @@
 
   @media (max-width: 600px) {
     .footer {
-      padding: $spacing-xl;
+      padding: $spacing-xl $spacing-lg;
     }
 
     .footer__inner {
       grid-template-columns: 1fr 1fr;
+      gap: $spacing-lg;
+    }
+
+    .footer__brand {
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer__quote {
+      max-width: 100%;
     }
 
     .footer__bottom {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer__legal {
+      justify-content: center;
+    }
+
+    .footer__list--row {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer__col:has(.footer__list--row) {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-lg;
+      text-align: left;
+    }
+
+    .footer__col:has(.footer__list--row) .footer__col-heading {
+      margin: 0;
     }
   }
 </style>

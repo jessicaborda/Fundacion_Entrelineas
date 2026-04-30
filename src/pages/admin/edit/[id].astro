@@ -1,0 +1,489 @@
+---
+import AdminLayout from '@layouts/AdminLayout.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { id: '1' } },
+    { params: { id: '2' } },
+    { params: { id: '3' } },
+  ];
+}
+
+const { id } = Astro.params;
+
+const post = {
+  id,
+  title:           'La lectura como acto político',
+  slug:            'la-lectura-como-acto-politico',
+  description:     'Pensar la lectura como práctica que transforma no solo al individuo sino al tejido colectivo en que vivimos.',
+  body:            '<h2>El lector como ciudadano</h2><p>Entendemos por "político" no la actividad de partidos o elecciones, sino algo más primario: la capacidad de tomar posición en el mundo que habitamos.</p><h2>El libro como bien común</h2><p>La lectura no forma ciudadanos porque transmite información cívica, sino porque ejercita la capacidad de habitar mundos diferentes al propio.</p>',
+  author:          'Miguel Ángel Palacios Quitián',
+  category:        'Ensayo',
+  pubDate:         '2025-09-15',
+  featured:        true,
+  tags:            ['lectura', 'democracia', 'pensamiento crítico'],
+  status:          'published',
+  coverUrl:        '',
+  coverAlt:        '',
+  metaTitle:       '',
+  metaDescription: '',
+  createdAt:       '2025-09-10T14:32:00Z',
+  updatedAt:       '2025-09-15T09:18:00Z',
+};
+
+const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
+
+const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
+  year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+});
+---
+
+<AdminLayout title={`Editar: ${post.title}`} activeNav="posts">
+
+  <!-- Topbar -->
+  <header class="topbar" slot="topbar">
+    <div class="topbar__left">
+      <nav class="breadcrumb">
+        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current" title={post.title}>
+          {post.title.length > 42 ? post.title.slice(0, 42) + '…' : post.title}
+        </span>
+      </nav>
+    </div>
+    <div class="topbar__actions">
+      <span class="autosave" id="autosave-status">
+        <span class="autosave__dot autosave__dot--saved" style="background:var(--success)"></span>
+        Guardado
+      </span>
+      <a
+        href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+        target="_blank"
+        class="btn btn--ghost btn--sm"
+      >Ver publicación →</a>
+      <button class="btn btn--outline btn--sm" onclick="handleSave('draft')">Guardar borrador</button>
+      <button class="btn btn--primary btn--sm" onclick="handleSave('published')">Actualizar →</button>
+    </div>
+  </header>
+
+  <!-- Info bar -->
+  <div class="info-bar">
+    <span class="info-bar__item">
+      <span class="info-bar__label">Estado actual:</span>
+      <span class={`badge badge--${post.status}`}>
+        {post.status === 'published' ? 'Publicada' : 'Borrador'}
+      </span>
+    </span>
+    <span class="info-bar__item">
+      <span class="info-bar__label">Última edición:</span>
+      {updatedDate}
+    </span>
+    <span class="info-bar__item">
+      <span class="info-bar__label">ID:</span>
+      <code style="font-size:0.72rem;background:var(--editorial);padding:0.1rem 0.4rem">{post.id}</code>
+    </span>
+    <a
+      href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+      target="_blank"
+      class="info-bar__link"
+    >/blog/{post.slug}</a>
+  </div>
+
+  <!-- Form -->
+  <form id="post-form" onsubmit="return false;" novalidate>
+    <div class="form-grid">
+
+      <!-- ── Columna principal ── -->
+      <div class="form-col">
+
+        <!-- Título + slug -->
+        <div class="card">
+          <span class="card__title">Contenido principal</span>
+
+          <div class="field">
+            <label for="f-title">Título <span class="label-hint">requerido · máx. 120 caracteres</span></label>
+            <input
+              type="text"
+              id="f-title"
+              name="title"
+              value={post.title}
+              maxlength="120"
+              autocomplete="off"
+            />
+            <div class="char-row">
+              <span style="font-size:0.72rem;color:var(--danger);display:none" id="title-error">Este campo es requerido</span>
+              <span class="char-count" id="count-title">{post.title.length} / 120</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-slug">Slug (URL) <span class="label-hint">editable · cambiarlo rompe enlaces existentes</span></label>
+            <div class="slug-row">
+              <span class="slug-row__prefix">/blog/</span>
+              <input type="text" id="f-slug" name="slug" value={post.slug} autocomplete="off" />
+            </div>
+            <p style="font-size:0.7rem;color:var(--danger);display:none" id="slug-warning">
+              ⚠ Cambiar el slug romperá los enlaces existentes a esta entrada.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="f-description">
+              Descripción / Extracto <span class="label-hint">requerido · aparece en listados y SEO</span>
+            </label>
+            <textarea
+              id="f-description"
+              name="description"
+              rows="3"
+              maxlength="200"
+              style="min-height:80px;resize:vertical;font-family:var(--font)"
+            >{post.description}</textarea>
+            <div class="char-row">
+              <span style="font-size:0.72rem;color:var(--danger);display:none" id="desc-error">Este campo es requerido</span>
+              <span class="char-count" id="count-desc">{post.description.length} / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor de texto -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:1rem 1.5rem 0.75rem;border-bottom:1px solid var(--border)">
+            <span class="card__title" style="border:none;padding:0">Cuerpo del artículo</span>
+          </div>
+          <div id="quill-editor"></div>
+          <input type="hidden" id="f-body" name="body" />
+        </div>
+
+        <!-- Imagen de portada -->
+        <div class="card">
+          <span class="card__title">Imagen de portada <span class="label-hint">opcional · recomendado 1200×630 px</span></span>
+
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('f-cover-file').click()" style={post.coverUrl ? 'display:none' : ''}>
+            <input type="file" id="f-cover-file" name="coverFile" accept="image/*" onchange="handleImageSelect(this)" />
+            <div style="font-size:2rem">🖼</div>
+            <p class="upload-area__text">Haz clic para subir una imagen o arrastra aquí<br/><span style="font-size:0.68rem">JPG, PNG, WebP · máx. 2 MB</span></p>
+          </div>
+
+          <div class="upload-preview" id="upload-preview" style={post.coverUrl ? 'display:block' : ''}>
+            <img id="upload-preview-img" src={post.coverUrl || ''} alt="Vista previa" />
+            <button type="button" class="upload-preview__remove" onclick="removeImage()" title="Eliminar imagen">✕</button>
+          </div>
+
+          <div class="field">
+            <label for="f-cover-url">URL de imagen</label>
+            <input type="url" id="f-cover-url" name="coverUrl" value={post.coverUrl} placeholder="https://ejemplo.com/imagen.jpg" oninput="handleUrlImage(this.value)" />
+          </div>
+
+          <div class="field">
+            <label for="f-cover-alt">Texto alternativo (alt)</label>
+            <input type="text" id="f-cover-alt" name="coverAlt" value={post.coverAlt} placeholder="Descripción breve de la imagen" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Columna lateral ── -->
+      <div class="form-col">
+
+        <!-- Publicación -->
+        <div class="card">
+          <span class="card__title">Publicación</span>
+
+          <div class="field">
+            <label for="f-status">Estado</label>
+            <select id="f-status" name="status">
+              <option value="draft" selected={post.status === 'draft'}>📝 Borrador</option>
+              <option value="published" selected={post.status === 'published'}>✅ Publicado</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="f-pubDate">Fecha de publicación</label>
+            <input type="date" id="f-pubDate" name="pubDate" value={post.pubDate} />
+          </div>
+
+          <div class="toggle-field">
+            <div>
+              <p class="toggle-label">Destacar en portada</p>
+              <p class="toggle-desc">Aparece en la sección principal del blog</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="f-featured" name="featured" checked={post.featured} />
+              <span class="toggle__track"></span>
+              <span class="toggle__thumb"></span>
+            </label>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <button type="button" class="btn btn--primary" style="width:100%;justify-content:center" onclick="handleSave('published')">
+            Actualizar entrada →
+          </button>
+          <button type="button" class="btn btn--outline" style="width:100%;justify-content:center" onclick="handleSave('draft')">
+            Guardar como borrador
+          </button>
+        </div>
+
+        <!-- Metadatos -->
+        <div class="card">
+          <span class="card__title">Metadatos</span>
+
+          <div class="field">
+            <label for="f-author">Autor</label>
+            <input type="text" id="f-author" name="author" value={post.author} />
+          </div>
+
+          <div class="field">
+            <label for="f-category">Categoría</label>
+            <select id="f-category" name="category">
+              {categories.map(c => (
+                <option value={c} selected={c === post.category}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Etiquetas <span class="label-hint">Enter o coma para agregar</span></label>
+            <div class="tags-input" id="tags-wrap">
+              <input id="tag-input" type="text" placeholder="Añadir etiqueta…" autocomplete="off" />
+            </div>
+            <input type="hidden" id="f-tags" name="tags" value={post.tags.join(',')} />
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div class="card">
+          <span class="card__title">SEO <span class="label-hint">opcional</span></span>
+
+          <div class="field">
+            <label for="f-meta-title">Meta título</label>
+            <input type="text" id="f-meta-title" name="metaTitle" value={post.metaTitle} maxlength="60" oninput="updateCharCount(this, 'count-meta-title', 60)" />
+            <span class="char-count" id="count-meta-title">0 / 60</span>
+          </div>
+
+          <div class="field">
+            <label for="f-meta-desc">Meta descripción</label>
+            <textarea id="f-meta-desc" name="metaDescription" rows="3" maxlength="155" style="min-height:80px;resize:vertical;font-family:var(--font)" oninput="updateCharCount(this, 'count-meta-desc', 155)">{post.metaDescription}</textarea>
+            <span class="char-count" id="count-meta-desc">0 / 155</span>
+          </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="card">
+          <span class="card__title">Historial</span>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.78rem;color:var(--muted)">
+            <div style="display:flex;justify-content:space-between">
+              <span>Creada</span>
+              <span>{new Date(post.createdAt).toLocaleDateString('es-CO')}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span>Última edición</span>
+              <span>{updatedDate}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span>ID entrada</span>
+              <code style="font-size:0.68rem">{post.id}</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zona peligrosa -->
+        <div class="card danger-zone">
+          <span class="card__title">Zona peligrosa</span>
+          <p style="font-size:0.78rem;color:var(--muted);line-height:1.55">
+            Eliminar esta entrada es permanente y no se puede deshacer.
+          </p>
+          <button type="button" class="btn btn--danger btn--sm" onclick="openDeleteModal()">
+            Eliminar esta entrada
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+  <!-- Modal eliminar -->
+  <div class="modal-backdrop" id="delete-modal">
+    <div class="modal">
+      <h2 class="modal__title">¿Eliminar esta entrada?</h2>
+      <p class="modal__body">
+        "<strong>{post.title}</strong>" será eliminada permanentemente. Esta acción no se puede deshacer.
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn--danger" onclick="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+</AdminLayout>
+
+<style is:global>
+  .info-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.625rem 2rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .info-bar__item { display: flex; align-items: center; gap: 0.375rem; }
+  .info-bar__label { font-weight: 600; color: var(--dark); }
+  .info-bar__link { margin-left: auto; color: var(--muted); text-decoration: underline; font-family: monospace; font-size: 0.72rem; }
+  .info-bar__link:hover { color: var(--dark); }
+</style>
+
+<script define:vars={{ postId: post.id, originalSlug: post.slug, initialTags: post.tags, initialBody: post.body }}>
+  const titleInput = document.getElementById('f-title');
+  const slugInput  = document.getElementById('f-slug');
+  const descInput  = document.getElementById('f-description');
+
+  // ── Editor Quill ──
+  const quill = window.Quill ? new window.Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Escribe el contenido del artículo aquí...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        ['blockquote'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link'],
+        ['clean']
+      ]
+    }
+  }) : null;
+  if (quill) {
+    quill.root.innerHTML = initialBody;
+    quill.on('text-change', () => markDirty());
+  }
+
+  // ── Char count ──
+  function updateCharCount(el, counterId, max) {
+    const counter = document.getElementById(counterId);
+    if (!counter) return;
+    const len = el.value.length;
+    counter.textContent = `${len} / ${max}`;
+    counter.className = 'char-count' + (len > max * 0.9 ? (len >= max ? ' char-count--over' : ' char-count--warn') : '');
+  }
+
+  titleInput?.addEventListener('input', () => { updateCharCount(titleInput, 'count-title', 120); markDirty(); });
+  descInput?.addEventListener('input',  () => { updateCharCount(descInput, 'count-desc', 200); markDirty(); });
+
+  // ── Slug warning ──
+  slugInput?.addEventListener('input', () => {
+    const warn = document.getElementById('slug-warning');
+    if (warn) warn.style.display = slugInput.value !== originalSlug ? 'block' : 'none';
+    markDirty();
+  });
+
+  // ── Imagen ──
+  function handleImageSelect(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => showImagePreview(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function handleUrlImage(url) {
+    if (url.match(/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i)) showImagePreview(url);
+  }
+
+  function showImagePreview(src) {
+    document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('upload-preview').style.display = 'block';
+    document.getElementById('upload-preview-img').src = src;
+  }
+
+  function removeImage() {
+    document.getElementById('upload-area').style.display = 'block';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('f-cover-file').value = '';
+    document.getElementById('f-cover-url').value = '';
+  }
+
+  // ── Drag & drop ──
+  const uploadArea = document.getElementById('upload-area');
+  uploadArea?.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--dark)'; });
+  uploadArea?.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+  uploadArea?.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '';
+    const file = e.dataTransfer?.files[0];
+    if (file?.type.startsWith('image/')) {
+      const input = document.getElementById('f-cover-file');
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handleImageSelect(input);
+    }
+  });
+
+  // ── Tags con valores iniciales ──
+  const tagManager = window.TagManager('tags-wrap', 'f-tags');
+  tagManager.init(initialTags);
+
+  // ── Dirty state ──
+  let isDirty = false;
+  function markDirty() {
+    isDirty = true;
+    const el = document.getElementById('autosave-status');
+    if (el) el.innerHTML = '<span class="autosave__dot"></span> Cambios sin guardar';
+  }
+
+  // ── Validación ──
+  function validate() {
+    const titleErr = document.getElementById('title-error');
+    const descErr  = document.getElementById('desc-error');
+    titleErr.style.display = titleInput?.value.trim() ? 'none' : 'inline';
+    descErr.style.display  = descInput?.value.trim()  ? 'none' : 'inline';
+    return !!(titleInput?.value.trim() && descInput?.value.trim());
+  }
+
+  // ── Guardar ──
+  function handleSave(status) {
+    if (!validate()) { window.showToast('Completa los campos requeridos'); return; }
+    const data = {
+      id:              postId,
+      title:           titleInput?.value,
+      slug:            slugInput?.value,
+      description:     descInput?.value,
+      body:            quill ? quill.root.innerHTML : '',
+      author:          document.getElementById('f-author')?.value,
+      category:        document.getElementById('f-category')?.value,
+      pubDate:         document.getElementById('f-pubDate')?.value,
+      featured:        document.getElementById('f-featured')?.checked,
+      tags:            document.getElementById('f-tags')?.value,
+      status,
+      metaTitle:       document.getElementById('f-meta-title')?.value,
+      metaDescription: document.getElementById('f-meta-desc')?.value,
+      coverUrl:        document.getElementById('f-cover-url')?.value,
+      coverAlt:        document.getElementById('f-cover-alt')?.value,
+    };
+    console.log(`[Backend pendiente] PUT /api/posts/${postId}`, data);
+    isDirty = false;
+    const el = document.getElementById('autosave-status');
+    if (el) { el.className = 'autosave autosave--saved'; el.innerHTML = '<span class="autosave__dot" style="background:var(--success)"></span> Guardado'; }
+    window.showToast(status === 'published' ? 'Entrada actualizada correctamente' : 'Guardado como borrador');
+  }
+
+  // ── Modal eliminar ──
+  function openDeleteModal() { document.getElementById('delete-modal').classList.add('modal-backdrop--open'); }
+  function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('modal-backdrop--open'); }
+  function confirmDelete() {
+    console.log(`[Backend pendiente] DELETE /api/posts/${postId}`);
+    closeDeleteModal();
+    window.showToast('Entrada eliminada');
+    setTimeout(() => { window.location.href = '/Fundacion_Entrelineas/admin/'; }, 1500);
+  }
+
+  window.addEventListener('beforeunload', e => { if (isDirty) e.preventDefault(); });
+
+  // Inicializar char counts con valores actuales
+  updateCharCount(titleInput, 'count-title', 120);
+  updateCharCount(descInput, 'count-desc', 200);
+</script>
