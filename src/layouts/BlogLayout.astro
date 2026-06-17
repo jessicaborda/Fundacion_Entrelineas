@@ -7,9 +7,11 @@ export interface Props {
   author?: string;
   pubDate?: Date;
   category?: string;
+  coverImage?: string;
+  coverImageAlt?: string;
 }
 
-const { title, description, author, pubDate, category } = Astro.props;
+const { title, description, author, pubDate, category, coverImage, coverImageAlt } = Astro.props;
 
 const formattedDate = pubDate?.toLocaleDateString('es-CO', {
   year: 'numeric',
@@ -32,6 +34,16 @@ const formattedDate = pubDate?.toLocaleDateString('es-CO', {
         </div>
       </div>
     </div>
+
+    {coverImage && (
+      <div class="blog-post__cover">
+        <img
+          src={coverImage}
+          alt={coverImageAlt ?? title}
+          class="blog-post__cover-img"
+        />
+      </div>
+    )}
 
     <div class="blog-post__body">
       <div class="blog-post__content">
@@ -118,6 +130,21 @@ const formattedDate = pubDate?.toLocaleDateString('es-CO', {
     color: rgba(7, 5, 35, 0.5);
   }
 
+  // Imagen de portada
+  .blog-post__cover {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: $spacing-2xl $spacing-xl 0;
+  }
+
+  .blog-post__cover-img {
+    width: 100%;
+    height: auto;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+  }
+
   // Cuerpo del post
   .blog-post__body {
     max-width: 760px;
@@ -202,6 +229,14 @@ const formattedDate = pubDate?.toLocaleDateString('es-CO', {
   @media (max-width: 768px) {
     .blog-post__hero {
       padding: $spacing-xl;
+    }
+
+    .blog-post__cover {
+      padding: 0 $spacing-lg;
+    }
+
+    .blog-post__cover-img {
+      max-height: 280px;
     }
 
     .blog-post__body {

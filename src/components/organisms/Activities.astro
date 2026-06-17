@@ -1,12 +1,14 @@
 ---
-// Activities — editorial dark section with activity cards
+// Activities — Instagram reels embed feed
+// Para actualizar: reemplaza las URLs del array `reels` con los permalinks
+// reales de Instagram (clic derecho → "Copiar enlace" en cada publicación).
+// Cuando se migre el dominio, conectar con la Graph API en lugar de este array.
 import SectionLabel from '@components/atoms/SectionLabel.astro';
 
-const activities = [
-  { tag: 'Formación', title: 'Tertulias literarias', meta: 'Ciclos mensuales · Tunja' },
-  { tag: 'Encuentro', title: 'Café filosófico', meta: 'Conversaciones abiertas al público' },
-  { tag: 'Festival', title: 'Fiesta del libro', meta: 'Edición anual · Plaza pública' },
-  { tag: 'Programa', title: 'Promotores de lectura', meta: 'Formación intensiva · 6 meses' },
+const reels = [
+  'https://www.instagram.com/reel/DZqsTMHNxAL/',
+  'https://www.instagram.com/p/DZfnb_PEbsM/',
+  'https://www.instagram.com/reel/DY2ob5uCHs-/',
 ];
 ---
 
@@ -20,22 +22,33 @@ const activities = [
       </h2>
     </div>
 
-    <div class="activities__grid">
-      {activities.map((a, i) => (
-        <article class="act-card">
-          <div class="act-card__top">
-            <span class="act-card__tag">{a.tag}</span>
-            <span class="act-card__n">0{i + 1}</span>
-          </div>
-          <div class="act-card__bottom">
-            <h3 class="act-card__title">{a.title}</h3>
-            <p class="act-card__meta">{a.meta}</p>
-          </div>
-        </article>
+    <div class="activities__feed">
+      {reels.map((url) => (
+        <div class="activities__embed-wrap">
+          <blockquote
+            class="instagram-media"
+            data-instgrm-permalink={`${url}?utm_source=ig_embed&utm_campaign=loading`}
+            data-instgrm-version="14"
+            style="background:#fff; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:340px; min-width:326px; padding:0; width:100%;"
+          ></blockquote>
+        </div>
       ))}
+    </div>
+
+    <div class="activities__cta">
+      <a
+        href="https://www.instagram.com/fundacion_entrelineas"
+        target="_blank"
+        rel="noopener"
+        class="activities__ig-link"
+      >
+        Ver más en Instagram →
+      </a>
     </div>
   </div>
 </section>
+
+<script async src="//www.instagram.com/embed.js"></script>
 
 <style lang="scss">
   .activities {
@@ -73,103 +86,64 @@ const activities = [
     color: $color-accent;
   }
 
-  .activities__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid rgba(7, 5, 35, 0.12);
-    border-left: 1px solid rgba(7, 5, 35, 0.12);
-  }
-
-  .act-card {
-    border-right: 1px solid rgba(7, 5, 35, 0.12);
-    border-bottom: 1px solid rgba(7, 5, 35, 0.12);
-    padding: $spacing-xl $spacing-lg;
-    min-height: 200px;
+  .activities__feed {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: $spacing-lg;
-    transition: background 0.25s ease;
-    cursor: pointer;
+    gap: $spacing-xl;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: $spacing-sm;
 
-    &:hover {
+    // Ocultar scrollbar visualmente pero mantener funcionalidad
+    scrollbar-width: thin;
+    scrollbar-color: $color-primary transparent;
+
+    &::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
       background: $color-primary;
-
-      .act-card__tag {
-        background: $color-text-dark;
-        color: $color-primary;
-        border-color: transparent;
-      }
-
-      .act-card__n {
-        color: rgba(7, 5, 35, 0.4);
-      }
-
-      .act-card__title {
-        color: $color-text-dark;
-      }
-
-      .act-card__meta {
-        color: rgba(7, 5, 35, 0.6);
-      }
     }
   }
 
-  .act-card__top {
+  .activities__embed-wrap {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: 340px;
+
+    // Mientras cargan los embeds de Instagram
+    min-height: 500px;
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
   }
 
-  .act-card__tag {
-    font-family: $font-family;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: $color-text-dark;
-    border: 1px solid rgba(7, 5, 35, 0.25);
-    padding: 0.25rem 0.625rem;
-    transition: background 0.25s ease, color 0.25s ease;
-  }
-
-  .act-card__n {
-    font-family: $font-family-serif;
-    font-style: italic;
-    font-size: 0.875rem;
-    color: rgba(7, 5, 35, 0.3);
-  }
-
-  .act-card__bottom {
+  .activities__cta {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    justify-content: flex-end;
   }
 
-  .act-card__title {
-    font-family: $font-family-serif;
-    font-weight: 500;
-    font-size: $font-size-xl;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    color: $color-text-dark;
-    margin: 0;
-  }
-
-  .act-card__meta {
+  .activities__ig-link {
     font-family: $font-family;
     font-size: $font-size-sm;
-    color: rgba(7, 5, 35, 0.55);
-    margin: 0;
-  }
+    font-weight: 700;
+    color: $color-text-dark;
+    text-decoration: none;
+    border-bottom: 2px solid $color-primary;
+    padding-bottom: 2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
 
-  @media (max-width: 900px) {
-    .activities__grid {
-      grid-template-columns: repeat(2, 1fr);
+    &:hover {
+      color: $color-accent;
+      border-bottom-color: $color-accent;
     }
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     .activities {
       padding: $spacing-xl 0;
     }
@@ -178,28 +152,13 @@ const activities = [
       padding: 0 $spacing-lg;
     }
 
-    .activities__grid {
-      display: flex;
-      flex-direction: row;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-padding-left: $spacing-lg;
-      -webkit-overflow-scrolling: touch;
-      border-top: none;
-      border-left: none;
-      padding-left: $spacing-lg;
-      gap: 0;
+    .activities__feed {
+      gap: $spacing-lg;
     }
 
-    .act-card {
-      flex: 0 0 75vw;
-      scroll-snap-align: start;
-      border-top: 1px solid rgba(7, 5, 35, 0.12);
-      border-left: 1px solid rgba(7, 5, 35, 0.12);
-
-      &:last-child {
-        margin-right: $spacing-lg;
-      }
+    .activities__embed-wrap {
+      width: 300px;
+      min-height: 460px;
     }
   }
 </style>

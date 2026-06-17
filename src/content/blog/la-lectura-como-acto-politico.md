@@ -6,6 +6,8 @@ category: "Ensayo"
 description: "Pensar la lectura como práctica que transforma no solo al individuo sino al tejido colectivo en que vivimos."
 tags: ["lectura", "democracia", "pensamiento crítico"]
 featured: true
+coverImage: "/Fundacion_Entrelineas/galeria/img_01.jpg"
+coverImageAlt: "Tertulia literaria Entrelíneas"
 ---
 
 Hay una tensión fundamental que atraviesa toda reflexión honesta sobre la lectura: la que existe entre la experiencia íntima y solitaria del lector y la dimensión pública de aquello que lo transforma. Cuando abrimos un libro, nos retiramos del mundo; pero cuando cerramos, lo miramos de otra manera. Esa mirada modificada es, en sí misma, un acto político.
