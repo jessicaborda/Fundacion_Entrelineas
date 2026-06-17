@@ -8,36 +8,42 @@ const pillars = [
     title: 'Lectura y escritura',
     body: 'Promovemos la lectura y la escritura como herramientas para pensar y hacer la vida cotidiana, más allá de la acumulación de capital cultural, en espacios convencionales y no convencionales.',
     tag: 'Formación',
+    highlighted: true,
   },
   {
     n: '02',
     title: 'Arte y cultura',
     body: 'Desarrollamos procesos formativos rigurosos en literatura, cine, filosofía y artes, dirigidos a todo público sin exigir formación previa.',
     tag: 'Encuentro',
+    highlighted: false,
   },
   {
     n: '03',
     title: 'Pensamiento crítico',
     body: 'Generamos espacios de formación política y ciudadana con énfasis en derechos humanos, para que cada persona conquiste activamente su singularidad.',
     tag: 'Reflexión',
+    highlighted: true,
   },
   {
     n: '04',
     title: 'Promotores de lectura',
     body: 'Formamos promotores culturales que multiplican el impacto en el tejido social de Tunja, llevando la lectura al barrio, la escuela y la plaza.',
     tag: 'Comunidad',
+    highlighted: false,
   },
   {
     n: '05',
     title: 'Festivales y divulgación',
     body: 'El Festival del libro y la lectura, el proyecto Pensar desde Colombia y nuestros contenidos en YouTube e Instagram llevan el pensamiento más allá de la sala.',
     tag: 'Festival',
+    highlighted: true,
   },
   {
     n: '06',
     title: 'Democracia y participación',
     body: 'Apostamos porque todo sujeto contribuya a la construcción de una democracia plena en sus dimensiones materiales y espirituales.',
     tag: 'Ciudadanía',
+    highlighted: false,
   },
 ];
 ---
@@ -53,7 +59,7 @@ const pillars = [
 
   <div class="what-we-do__grid">
     {pillars.map(p => (
-      <article class="pillar-card">
+      <article class={`pillar-card${p.highlighted ? ' pillar-card--highlighted' : ''}`}>
         <div class="pillar-card__top">
           <span class="pillar-card__tag">{p.tag}</span>
           <span class="pillar-card__n">{p.n}</span>
@@ -114,9 +120,8 @@ const pillars = [
     flex-direction: column;
     justify-content: space-between;
     gap: $spacing-md;
-    transition: background 0.25s ease;
 
-    &:hover {
+    &--highlighted {
       background: $color-primary;
 
       .pillar-card__tag {
@@ -146,7 +151,6 @@ const pillars = [
     color: $color-text-dark;
     border: 1px solid $color-text-dark;
     padding: 0.25rem 0.625rem;
-    transition: background 0.25s ease, color 0.25s ease;
   }
 
   .pillar-card__n {
@@ -173,7 +177,6 @@ const pillars = [
     line-height: 1.6;
     color: rgba(7, 5, 35, 0.65);
     margin: 0;
-    transition: color 0.25s ease;
   }
 
   @media (max-width: 900px) {

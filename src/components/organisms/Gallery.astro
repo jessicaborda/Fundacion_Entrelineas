@@ -54,15 +54,14 @@ const images = [
 </div>
 
 <script>
-  const lightbox   = document.getElementById('gallery-lightbox')!;
-  const track      = document.getElementById('lightbox-track')!;
-  const lbClose    = document.getElementById('lightbox-close')!;
-  const lbPrev     = document.getElementById('lightbox-prev')!;
-  const lbNext     = document.getElementById('lightbox-next')!;
-  const counter    = document.getElementById('lightbox-counter')!;
-  const slides     = Array.from(track.querySelectorAll<HTMLElement>('.lightbox__slide'));
-  const total      = slides.length;
-  let current      = 0;
+  const lightbox = document.getElementById('gallery-lightbox')!;
+  const track    = document.getElementById('lightbox-track')!;
+  const lbClose  = document.getElementById('lightbox-close')!;
+  const lbPrev   = document.getElementById('lightbox-prev')!;
+  const lbNext   = document.getElementById('lightbox-next')!;
+  const counter  = document.getElementById('lightbox-counter')!;
+  const total    = track.querySelectorAll('.lightbox__slide').length;
+  let current    = 0;
 
   function goTo(index: number, animate = true) {
     current = (index + total) % total;
@@ -84,7 +83,7 @@ const images = [
     lightbox.setAttribute('aria-hidden', 'true');
   }
 
-  // Sync counter when user swipes on mobile
+  // Sync counter on mobile swipe
   let scrollTimer: ReturnType<typeof setTimeout>;
   track.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
@@ -103,9 +102,9 @@ const images = [
     btn.addEventListener('click', () => open(Number(btn.dataset.index)));
   });
 
-  lbClose.addEventListener('click', close);
   lbPrev.addEventListener('click', () => goTo(current - 1));
   lbNext.addEventListener('click', () => goTo(current + 1));
+  lbClose.addEventListener('click', close);
 
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
 
@@ -249,16 +248,21 @@ const images = [
     background: $color-primary;
     color: $color-text-dark;
     border: 0;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: $font-family;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     z-index: 10;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: $color-text-dark;
+      color: $color-primary;
+    }
   }
 
   .lightbox__nav {
@@ -277,9 +281,12 @@ const images = [
     line-height: 1;
     cursor: pointer;
     z-index: 10;
-    transition: opacity 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 
-    &:hover { opacity: 0.8; }
+    &:hover {
+      background: $color-text-dark;
+      color: $color-primary;
+    }
 
     &[aria-disabled='true'] {
       opacity: 0.25;
@@ -296,10 +303,10 @@ const images = [
     left: 50%;
     transform: translateX(-50%);
     font-family: $font-family;
-    font-size: 0.75rem;
+    font-size: $font-size-sm;
     font-weight: 700;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.55);
+    color: $color-primary;
   }
 
   @media (max-width: 768px) {
