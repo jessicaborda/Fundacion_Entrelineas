@@ -1,12 +1,14 @@
 ---
 // Footer — multi-column editorial layout
+import { Image } from 'astro:assets';
+import logoLight from '@assets/logo-light.svg';
 ---
 
 <footer class="footer">
   <div class="footer__inner">
     <div class="footer__brand">
-      <img
-        src="/logo-light.svg"
+      <Image
+        src={logoLight}
         alt="Entrelíneas"
         class="footer__logo-img"
       />
@@ -46,11 +48,12 @@
   </div>
 
   <div class="footer__bottom">
-    <span class="footer__copy">© 2025 Fundación Cultural Entrelíneas · Tunja, Boyacá</span>
+    <span class="footer__copy">© 2026 Fundación Cultural Entrelíneas · Tunja, Boyacá</span>
     <div class="footer__legal">
-      <a href="#aviso-legal" class="footer__legal-link">Aviso legal</a>
-      <a href="#politicas" class="footer__legal-link">Políticas</a>
+      <a href="/aviso-legal" class="footer__legal-link">Aviso legal</a>
+      <a href="/politicas" class="footer__legal-link">Políticas</a>
     </div>
+    <span class="footer__dev">Desarrollado por Tchunza Software</span>
   </div>
 </footer>
 
@@ -153,6 +156,12 @@
     &:hover {
       color: $color-text-light;
     }
+  }
+
+  .footer__dev {
+    font-family: $font-family;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
   }
 
   @media (max-width: 900px) {

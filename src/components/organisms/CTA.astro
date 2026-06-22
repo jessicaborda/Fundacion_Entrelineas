@@ -1,6 +1,7 @@
 ---
 // CTA — yellow background editorial contact section
 import SectionLabel from '@components/atoms/SectionLabel.astro';
+import { Image } from 'astro:assets';
 ---
 
 <section class="cta" id="contacto">
@@ -43,10 +44,12 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
     </div>
 
     <div class="cta__image-wrap">
-      <img
+      <Image
         src="/galeria/img_12.jpg"
         alt="Encuentro Entrelíneas"
         class="cta__image"
+        width={960}
+        height={640}
       />
     </div>
   </div>

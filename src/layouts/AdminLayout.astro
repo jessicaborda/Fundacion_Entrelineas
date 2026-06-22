@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logoLight from '@assets/logo-light.svg';
 export interface Props {
   title: string;
   activeNav?: 'posts' | 'new' | 'gallery' | 'users';
@@ -521,7 +523,7 @@ const { title, activeNav = 'posts' } = Astro.props;
 
   <aside class="sidebar">
     <div class="sidebar__brand">
-      <img src="/logo-light.svg" alt="Entrelíneas" class="sidebar__logo" />
+      <Image src={logoLight} alt="Entrelíneas" class="sidebar__logo" />
       <p class="sidebar__label">Administración</p>
     </div>
     <nav class="sidebar__nav">

@@ -1,6 +1,7 @@
 ---
 // YouTube — dark editorial video section
 import SectionLabel from '@components/atoms/SectionLabel.astro';
+import { Image } from 'astro:assets';
 
 const videos = [
   {
@@ -48,10 +49,12 @@ const videos = [
         aria-label={`Ver video: ${v.title}`}
       >
         <div class="yt-card__thumb">
-          <img
+          <Image
             src={`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`}
             alt={v.title}
             class="yt-card__thumb-img"
+            width={480}
+            height={360}
             loading="lazy"
           />
           <div class="yt-card__play">

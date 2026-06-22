@@ -6,6 +6,9 @@ export default defineConfig({
   output: 'static',
   adapter: node({ mode: 'standalone' }),
   security: { checkOrigin: false },
+  image: {
+    remotePatterns: [{ protocol: 'https', hostname: 'img.youtube.com' }],
+  },
   vite: {
     css: {
       preprocessorOptions: {

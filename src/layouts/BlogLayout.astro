@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { Image } from 'astro:assets';
 
 export interface Props {
   title: string;
@@ -37,10 +38,12 @@ const formattedDate = pubDate?.toLocaleDateString('es-CO', {
 
     {coverImage && (
       <div class="blog-post__cover">
-        <img
+        <Image
           src={coverImage}
           alt={coverImageAlt ?? title}
           class="blog-post__cover-img"
+          width={760}
+          height={480}
         />
       </div>
     )}

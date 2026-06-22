@@ -29,7 +29,7 @@ const reels = [
             class="instagram-media"
             data-instgrm-permalink={`${url}?utm_source=ig_embed&utm_campaign=loading`}
             data-instgrm-version="14"
-            style="background:#fff; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:340px; min-width:326px; padding:0; width:100%;"
+            style="background:#fff; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:340px; min-width:0; padding:0; width:100%;"
           ></blockquote>
         </div>
       ))}
@@ -48,7 +48,35 @@ const reels = [
   </div>
 </section>
 
-<script async src="//www.instagram.com/embed.js"></script>
+<script>
+  const section = document.querySelector('.activities');
+  const feed = document.querySelector('.activities__feed');
+
+  const decorateIframes = () => {
+    feed?.querySelectorAll('iframe').forEach((iframe, i) => {
+      if (!iframe.title) iframe.setAttribute('title', `Publicación de Instagram ${i + 1}`);
+      if (!iframe.loading) iframe.setAttribute('loading', 'lazy');
+    });
+  };
+
+  if (section && feed) {
+    const observer = new MutationObserver(decorateIframes);
+    observer.observe(feed, { childList: true, subtree: true });
+
+    // Carga embed.js solo cuando la sección entra en el viewport
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        const script = document.createElement('script');
+        script.src = '//www.instagram.com/embed.js';
+        script.async = true;
+        document.body.appendChild(script);
+        io.disconnect();
+      }
+    }, { rootMargin: '200px' });
+
+    io.observe(section);
+  }
+</script>
 
 <style lang="scss">
   .activities {
@@ -112,9 +140,9 @@ const reels = [
   }
 
   .activities__embed-wrap {
-    flex: 0 0 auto;
+    flex: 0 0 340px;
     scroll-snap-align: start;
-    width: 340px;
+    overflow: hidden;
 
     // Mientras cargan los embeds de Instagram
     min-height: 500px;
@@ -143,6 +171,23 @@ const reels = [
     }
   }
 
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .activities {
+      padding: $spacing-2xl 0;
+    }
+
+    .activities__header {
+      padding: 0 $spacing-xl;
+    }
+
+    .activities__feed {
+      gap: $spacing-xl;
+      padding-left: $spacing-xl;
+      padding-right: $spacing-xl;
+      scroll-padding-left: $spacing-xl;
+    }
+  }
+
   @media (max-width: 768px) {
     .activities {
       padding: $spacing-xl 0;
@@ -154,10 +199,12 @@ const reels = [
 
     .activities__feed {
       gap: $spacing-lg;
+      padding-left: $spacing-lg;
+      padding-right: $spacing-lg;
+      scroll-padding-left: $spacing-lg;
     }
 
     .activities__embed-wrap {
-      width: 300px;
       min-height: 460px;
     }
   }

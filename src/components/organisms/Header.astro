@@ -1,12 +1,14 @@
 ---
 // Header — editorial sticky nav
+import { Image } from 'astro:assets';
+import logo from '@assets/logo.svg';
 ---
 
 <div class="header" id="site-header">
   <div class="header__inner">
     <a href="/" class="header__logo">
-      <img
-        src="/logo.svg"
+      <Image
+        src={logo}
         alt="Entrelíneas"
         class="header__logo-img"
       />

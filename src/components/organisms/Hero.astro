@@ -1,5 +1,7 @@
 ---
 // Hero — brand-aligned editorial (Manual de Marca 2024)
+import { Image } from 'astro:assets';
+import heroImage from '@assets/images/hero-image.jpg';
 ---
 
 <section class="hero" id="hero">
@@ -47,8 +49,8 @@
   </div>
 
   <div class="hero__image-wrap">
-    <img
-      src="/hero-image.jpg"
+    <Image
+      src={heroImage}
       alt="Encuentro de lectura Entrelíneas"
       class="hero__image"
     />

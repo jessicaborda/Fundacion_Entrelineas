@@ -1,6 +1,8 @@
 ---
 // WhoWeAre — Quiénes somos + Historia con timeline
 import SectionLabel from '@components/atoms/SectionLabel.astro';
+import { Image } from 'astro:assets';
+import historyImage from '@assets/images/imgi_01.jpg';
 
 const timeline = [
   { y: '2010', t: 'Un colectivo', d: 'El Colectivo Cultural Estanislao Zuleta reúne estudiantes universitarios para procesos de formación en literatura, cine y filosofía abiertos a todo público.' },
@@ -50,8 +52,8 @@ const timeline = [
 
       <div class="history__body">
         <div class="history__image-wrap">
-          <img
-            src="/imgi_01.jpg"
+          <Image
+            src={historyImage}
             alt="Reunión de la fundación"
             class="history__image"
           />
