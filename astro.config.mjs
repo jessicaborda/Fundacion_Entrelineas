@@ -8,9 +8,6 @@ export default defineConfig({
   output: 'static',
   adapter: node({ mode: 'standalone' }),
   vite: {
-    ssr: {
-      external: ['better-sqlite3'],
-    },
     css: {
       preprocessorOptions: {
         scss: {

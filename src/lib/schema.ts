@@ -1,24 +1,30 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+// Tipos TypeScript que representan las filas de PostgreSQL
+// (con la transformación camelCase de postgres.js)
 
-export const posts = sqliteTable('posts', {
-  id:              text('id').primaryKey(),
-  title:           text('title').notNull(),
-  slug:            text('slug').notNull().unique(),
-  description:     text('description').notNull(),
-  body:            text('body').notNull().default(''),
-  author:          text('author').notNull(),
-  category:        text('category').notNull(),
-  pubDate:         text('pub_date').notNull(),
-  featured:        integer('featured', { mode: 'boolean' }).notNull().default(false),
-  tags:            text('tags').notNull().default(''),
-  status:          text('status', { enum: ['draft', 'published'] }).notNull().default('draft'),
-  coverUrl:        text('cover_url').notNull().default(''),
-  coverAlt:        text('cover_alt').notNull().default(''),
-  metaTitle:       text('meta_title').notNull().default(''),
-  metaDescription: text('meta_desc').notNull().default(''),
-  createdAt:       text('created_at').notNull(),
-  updatedAt:       text('updated_at').notNull(),
-});
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  createdAt: Date;
+}
 
-export type Post = typeof posts.$inferSelect;
-export type NewPost = typeof posts.$inferInsert;
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  body: string;
+  author: string;
+  category: string;
+  pubDate: string;
+  featured: boolean;
+  tags: string;
+  status: 'draft' | 'published';
+  coverUrl: string;
+  coverAlt: string;
+  metaTitle: string;
+  metaDescription: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

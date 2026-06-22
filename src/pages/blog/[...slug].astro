@@ -1,17 +1,15 @@
 ---
 export const prerender = false;
-import { db } from '../../lib/db';
-import { posts as postsTable } from '../../lib/schema';
-import { eq, and } from 'drizzle-orm';
+import { sql } from '../../lib/db';
+import type { Post } from '../../lib/schema';
 import BlogLayout from '@layouts/BlogLayout.astro';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect(`${import.meta.env.BASE_URL}blog/`);
 
-const [post] = await db
-  .select()
-  .from(postsTable)
-  .where(and(eq(postsTable.slug, slug), eq(postsTable.status, 'published')));
+const [post] = await sql<Post[]>`
+  SELECT * FROM posts WHERE slug = ${slug} AND status = 'published'
+`;
 
 if (!post) return Astro.redirect(`${import.meta.env.BASE_URL}blog/`);
 ---

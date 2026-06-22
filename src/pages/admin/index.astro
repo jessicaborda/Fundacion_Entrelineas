@@ -1,9 +1,9 @@
 ---
 export const prerender = false;
-import { db } from '../../lib/db';
-import { posts as postsTable } from '../../lib/schema';
+import { sql } from '../../lib/db';
+import type { Post } from '../../lib/schema';
 
-const allPosts = await db.select().from(postsTable);
+const allPosts  = await sql<Post[]>`SELECT * FROM posts ORDER BY created_at DESC`;
 const total     = allPosts.length;
 const published = allPosts.filter(p => p.status === 'published').length;
 const drafts    = allPosts.filter(p => p.status === 'draft').length;

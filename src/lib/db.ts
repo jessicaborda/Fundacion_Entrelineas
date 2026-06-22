@@ -1,107 +1,87 @@
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import * as schema from './schema';
+import postgres from 'postgres';
+import type { Sql } from 'postgres';
+import { hash } from 'bcryptjs';
 
-const dbPath = import.meta.env.DATABASE_URL ?? 'entrelineas.db';
-const sqlite = new Database(dbPath);
-sqlite.pragma('journal_mode = WAL');
+let _sql: Sql | null = null;
 
-export const db = drizzle(sqlite, { schema });
+function connection(): Sql {
+  if (!_sql) {
+    const url = import.meta.env.DATABASE_URL ?? process.env.DATABASE_URL;
+    if (!url) throw new Error('DATABASE_URL no configurado');
+    _sql = postgres(url, { transform: postgres.camel, max: 10, idle_timeout: 20 });
+  }
+  return _sql;
+}
 
-sqlite.exec(`
-  CREATE TABLE IF NOT EXISTS posts (
-    id          TEXT PRIMARY KEY,
-    title       TEXT NOT NULL,
-    slug        TEXT NOT NULL UNIQUE,
-    description TEXT NOT NULL,
-    body        TEXT NOT NULL DEFAULT '',
-    author      TEXT NOT NULL,
-    category    TEXT NOT NULL,
-    pub_date    TEXT NOT NULL,
-    featured    INTEGER NOT NULL DEFAULT 0,
-    tags        TEXT NOT NULL DEFAULT '',
-    status      TEXT NOT NULL DEFAULT 'draft',
-    cover_url   TEXT NOT NULL DEFAULT '',
-    cover_alt   TEXT NOT NULL DEFAULT '',
-    meta_title  TEXT NOT NULL DEFAULT '',
-    meta_desc   TEXT NOT NULL DEFAULT '',
-    created_at  TEXT NOT NULL,
-    updated_at  TEXT NOT NULL
-  )
-`);
-
-// Seed inicial (solo si la tabla está vacía)
-const { n } = sqlite.prepare('SELECT COUNT(*) as n FROM posts').get() as { n: number };
-if (n === 0) {
-  const now = new Date().toISOString();
-  const insert = sqlite.prepare(`
-    INSERT INTO posts
-      (id, title, slug, description, body, author, category, pub_date, featured, tags,
-       status, cover_url, cover_alt, meta_title, meta_desc, created_at, updated_at)
-    VALUES
-      (@id, @title, @slug, @description, @body, @author, @category, @pub_date, @featured, @tags,
-       @status, @cover_url, @cover_alt, @meta_title, @meta_desc, @created_at, @updated_at)
-  `);
-
-  const seed = [
-    {
-      id: 'seed-0001',
-      title: 'La lectura como acto político',
-      slug: 'la-lectura-como-acto-politico',
-      description: 'Pensar la lectura como práctica que transforma no solo al individuo sino al tejido colectivo en que vivimos.',
-      body: '<h2>El lector como ciudadano</h2><p>Entendemos por "político" no la actividad de partidos o elecciones, sino algo más primario: la capacidad de tomar posición en el mundo que habitamos.</p><h2>El libro como bien común</h2><p>La lectura no forma ciudadanos porque transmite información cívica, sino porque ejercita la capacidad de habitar mundos diferentes al propio.</p>',
-      author: 'Miguel Ángel Palacios Quitián',
-      category: 'Ensayo',
-      pub_date: '2025-09-15',
-      featured: 1,
-      tags: 'lectura,democracia,pensamiento crítico',
-      status: 'published',
-      cover_url: '',
-      cover_alt: '',
-      meta_title: '',
-      meta_desc: '',
-      created_at: '2025-09-10T14:32:00Z',
-      updated_at: now,
+// Proxy lazy: la conexión se crea solo cuando se usa sql por primera vez
+export const sql = new Proxy(
+  function () {} as unknown as Sql,
+  {
+    apply(_t, _this, args) { return (connection() as any)(...args); },
+    get(_t, prop) {
+      if (prop === 'then') return undefined; // evitar confusión con Promise
+      const conn = connection();
+      const val = (conn as any)[prop];
+      return typeof val === 'function' ? val.bind(conn) : val;
     },
-    {
-      id: 'seed-0002',
-      title: 'Pensar desde Colombia',
-      slug: 'pensar-desde-colombia',
-      description: 'Una reflexión sobre el pensamiento filosófico latinoamericano y su lugar en el mundo intelectual contemporáneo.',
-      body: '<p>Colombia produce pensamiento filosófico situado, enraizado en sus paisajes, sus conflictos y sus posibilidades.</p>',
-      author: 'Fundación Entrelíneas',
-      category: 'Artículo',
-      pub_date: '2025-10-02',
-      featured: 0,
-      tags: 'filosofía,colombia,pensamiento',
-      status: 'published',
-      cover_url: '',
-      cover_alt: '',
-      meta_title: '',
-      meta_desc: '',
-      created_at: '2025-09-28T10:00:00Z',
-      updated_at: now,
-    },
-    {
-      id: 'seed-0003',
-      title: 'Pequeños relatos, grandes joyas',
-      slug: 'pequenos-relatos-grandes-joyas',
-      description: 'Una aproximación al microrrelato latinoamericano: forma breve, contenido intenso.',
-      body: '<p>El microrrelato es la forma narrativa más exigente: cada palabra debe justificarse, cada silencio importa.</p>',
-      author: 'Fundación Entrelíneas',
-      category: 'Artículo',
-      pub_date: '2025-08-20',
-      featured: 0,
-      tags: 'literatura,microrrelato,narrativa',
-      status: 'draft',
-      cover_url: '',
-      cover_alt: '',
-      meta_title: '',
-      meta_desc: '',
-      created_at: '2025-08-15T09:00:00Z',
-      updated_at: now,
-    },
-  ];
+  }
+) as Sql;
 
-  for (const row of seed) insert.run(row);
+let initPromise: Promise<void> | null = null;
+export function ensureInit(): Promise<void> {
+  if (!initPromise) initPromise = _init();
+  return initPromise;
+}
+
+async function _init() {
+  const db = connection();
+
+  await db`
+    CREATE TABLE IF NOT EXISTS users (
+      id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+      email         TEXT        NOT NULL UNIQUE,
+      name          TEXT        NOT NULL,
+      password_hash TEXT        NOT NULL,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS posts (
+      id               UUID    PRIMARY KEY,
+      title            TEXT    NOT NULL,
+      slug             TEXT    NOT NULL UNIQUE,
+      description      TEXT    NOT NULL,
+      body             TEXT    NOT NULL DEFAULT '',
+      author           TEXT    NOT NULL,
+      category         TEXT    NOT NULL,
+      pub_date         TEXT    NOT NULL,
+      featured         BOOLEAN NOT NULL DEFAULT false,
+      tags             TEXT    NOT NULL DEFAULT '',
+      status           TEXT    NOT NULL DEFAULT 'draft',
+      cover_url        TEXT    NOT NULL DEFAULT '',
+      cover_alt        TEXT    NOT NULL DEFAULT '',
+      meta_title       TEXT    NOT NULL DEFAULT '',
+      meta_description TEXT    NOT NULL DEFAULT '',
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  const seedEmail    = import.meta.env.SEED_ADMIN_EMAIL    ?? process.env.SEED_ADMIN_EMAIL;
+  const seedPassword = import.meta.env.SEED_ADMIN_PASSWORD ?? process.env.SEED_ADMIN_PASSWORD;
+  const seedName     = import.meta.env.SEED_ADMIN_NAME     ?? process.env.SEED_ADMIN_NAME ?? 'Admin';
+
+  if (seedEmail && seedPassword) {
+    const [{ count }] = await db<[{ count: number }]>`SELECT COUNT(*)::int AS count FROM users`;
+    if (count === 0) {
+      const passwordHash = await hash(seedPassword, 12);
+      await db`
+        INSERT INTO users (email, name, password_hash)
+        VALUES (${seedEmail}, ${seedName}, ${passwordHash})
+        ON CONFLICT DO NOTHING
+      `;
+      console.log(`[db] Admin creado: ${seedEmail}`);
+    }
+  }
 }

@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
-import { signToken, verifyPassword, COOKIE_NAME } from '../../../lib/auth';
+import { compare } from 'bcryptjs';
+import { signToken, COOKIE_NAME } from '../../../lib/auth';
+import { sql } from '../../../lib/db';
+import type { User } from '../../../lib/schema';
 
 export const prerender = false;
 
@@ -8,35 +11,23 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (!json?.email || !json?.password) {
     return new Response(JSON.stringify({ error: 'Credenciales inválidas' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      status: 401, headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const adminEmail = import.meta.env.ADMIN_EMAIL;
-  const adminHash = import.meta.env.ADMIN_PASSWORD_HASH;
+  const [user] = await sql<User[]>`SELECT * FROM users WHERE email = ${json.email}`;
 
-  if (!adminEmail || !adminHash) {
-    return new Response(JSON.stringify({ error: 'Servidor no configurado' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  const emailMatch = json.email === adminEmail;
-  const passwordMatch = emailMatch && await verifyPassword(json.password, adminHash);
-
-  if (!emailMatch || !passwordMatch) {
+  const valid = user && await compare(json.password, user.passwordHash);
+  if (!valid) {
     return new Response(JSON.stringify({ error: 'Credenciales inválidas' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      status: 401, headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const token = await signToken({ id: 'admin', email: adminEmail, name: 'Administrador' });
+  const token = await signToken({ id: user.id, email: user.email, name: user.name });
 
   return new Response(
-    JSON.stringify({ user: { id: 'admin', name: 'Administrador', email: adminEmail }, token }),
+    JSON.stringify({ user: { id: user.id, email: user.email, name: user.name } }),
     {
       status: 200,
       headers: {
