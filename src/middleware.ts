@@ -9,12 +9,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
   const isApi   = pathname.startsWith('/api/');
+  const isBlog  = pathname === '/blog' || pathname.startsWith('/blog/');
 
-  // Páginas públicas: sin DB ni auth
+  // Rutas que necesitan la DB (excluye páginas estáticas como el home)
+  if (isAdmin || isApi || isBlog) {
+    await ensureInit();
+  }
+
+  // Páginas públicas: sin auth
   if (!isAdmin && !isApi) return next();
-
-  // Admin y API: garantizar que las tablas existen
-  await ensureInit();
 
   if (PUBLIC_PATHS.has(pathname)) return next();
 

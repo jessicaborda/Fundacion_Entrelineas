@@ -6,6 +6,11 @@ export function getGaleriaDir(): string {
   return path.join(process.cwd(), isProd ? 'dist/client/galeria' : 'public/galeria');
 }
 
+export function getCoversDir(): string {
+  const isProd = process.env.NODE_ENV === 'production';
+  return path.join(process.cwd(), isProd ? 'dist/client/covers' : 'public/covers');
+}
+
 // Config lives inside the galeria volume so persiste across redeploys
 export function getConfigPath(): string {
   return path.join(getGaleriaDir(), 'gallery.config.json');
