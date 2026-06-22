@@ -581,8 +581,8 @@ const { title, activeNav = 'posts' } = Astro.props;
     };
 
     document.getElementById('logout-btn')?.addEventListener('click', async () => {
-      await fetch(`${import.meta.env.BASE_URL}api/auth/logout`, { method: 'POST' });
-      window.location.href = `${import.meta.env.BASE_URL}admin/login`;
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/admin/login';
     });
 
     window.TagManager = function(wrapId, hiddenId) {

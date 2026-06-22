@@ -7,7 +7,7 @@ const PUBLIC_PATHS = new Set(['/admin/login', '/api/auth/login']);
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-  const isAdmin = pathname.startsWith('/admin/');
+  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
   const isApi   = pathname.startsWith('/api/');
 
   // Páginas públicas: sin DB ni auth
@@ -27,7 +27,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-    return context.redirect(`${import.meta.env.BASE_URL}admin/login`);
+    return context.redirect('/admin/login');
   }
 
   context.locals.user = user;

@@ -8,7 +8,7 @@ export const POST: APIRoute = () => {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`,
+      'Set-Cookie': `${COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${import.meta.env.PROD ? '; Secure' : ''}`,
     },
   });
 };

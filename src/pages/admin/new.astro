@@ -273,7 +273,7 @@ const today = new Date().toISOString().split('T')[0];
     form.append('context', 'cover');
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/media/upload`, { method: 'POST', body: form });
+      const res = await fetch(`/api/media/upload`, { method: 'POST', body: form });
       const json = await res.json();
       if (!res.ok) { window.showToast(json.error ?? 'Error al subir imagen'); setAutosaveStatus('dirty'); return; }
       (document.getElementById('f-cover-url') as HTMLInputElement).value = json.url;
@@ -371,7 +371,7 @@ const today = new Date().toISOString().split('T')[0];
     };
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/posts`, {
+      const res = await fetch(`/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -382,7 +382,7 @@ const today = new Date().toISOString().split('T')[0];
         setAutosaveStatus('saved');
         window.showToast(status === 'published' ? 'Entrada publicada correctamente' : 'Borrador guardado');
         setTimeout(() => {
-          window.location.href = `${import.meta.env.BASE_URL}admin/edit/${json.id}`;
+          window.location.href = `/admin/edit/${json.id}`;
         }, 800);
       } else {
         setAutosaveStatus('dirty');

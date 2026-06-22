@@ -7,7 +7,7 @@ import type { Post } from '../../../lib/schema';
 const { id } = Astro.params;
 
 const [raw] = await sql<Post[]>`SELECT * FROM posts WHERE id = ${id}`;
-if (!raw) return Astro.redirect(`${import.meta.env.BASE_URL}admin/`);
+if (!raw) return Astro.redirect(`/admin/`);
 
 const post = {
   ...raw,
@@ -374,7 +374,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
     form.append('context', 'cover');
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/media/upload`, { method: 'POST', body: form });
+      const res = await fetch(`/api/media/upload`, { method: 'POST', body: form });
       const json = await res.json();
       if (!res.ok) { window.showToast(json.error ?? 'Error al subir imagen'); setAutosaveStatus('dirty'); return; }
       document.getElementById('f-cover-url').value = json.url;
@@ -475,7 +475,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
     };
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/posts/${postId}`, {
+      const res = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -503,10 +503,10 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   async function confirmDelete() {
     closeDeleteModal();
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/posts/${postId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
       if (res.ok) {
         window.showToast('Entrada eliminada');
-        setTimeout(() => { window.location.href = `${import.meta.env.BASE_URL}admin/`; }, 1200);
+        setTimeout(() => { window.location.href = `/admin/`; }, 1200);
       } else {
         window.showToast('No se pudo eliminar. Intenta de nuevo.');
       }

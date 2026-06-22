@@ -5,13 +5,13 @@ import type { Post } from '../../lib/schema';
 import BlogLayout from '@layouts/BlogLayout.astro';
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect(`${import.meta.env.BASE_URL}blog/`);
+if (!slug) return Astro.redirect(`/blog/`);
 
 const [post] = await sql<Post[]>`
   SELECT * FROM posts WHERE slug = ${slug} AND status = 'published'
 `;
 
-if (!post) return Astro.redirect(`${import.meta.env.BASE_URL}blog/`);
+if (!post) return Astro.redirect(`/blog/`);
 ---
 
 <BlogLayout
