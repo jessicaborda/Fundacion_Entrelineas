@@ -43,7 +43,7 @@ export function triggerGitPush(message: string, files: string[]): boolean {
   const repo   = import.meta.env.GITHUB_REPO;
   const branch = import.meta.env.GITHUB_BRANCH ?? 'main';
   const name   = import.meta.env.GIT_USER_NAME  ?? 'Entrelíneas Admin';
-  const email  = import.meta.env.GIT_USER_EMAIL ?? 'admin@entrelineas.org';
+  const email  = import.meta.env.GIT_USER_EMAIL ?? 'admin@fundacionentrelineas.com';
 
   if (!token || !repo) {
     throw new Error('GITHUB_TOKEN o GITHUB_REPO no configurados');
