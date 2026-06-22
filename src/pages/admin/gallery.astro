@@ -1,17 +1,16 @@
 ---
 export const prerender = false;
 import AdminLayout from '@layouts/AdminLayout.astro';
-import { readdirSync } from 'node:fs';
-import path from 'node:path';
-import { readGalleryConfig } from '../../lib/gallery';
+import { readdirSync, existsSync } from 'node:fs';
+import { readGalleryConfig, getGaleriaDir } from '../../lib/gallery';
 
 const galleryConfig = readGalleryConfig();
 const activeImages  = galleryConfig.images;
 
-const galeriaPath  = path.join(process.cwd(), 'public', 'galeria');
-const allFiles     = readdirSync(galeriaPath)
-  .filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f))
-  .sort();
+const galeriaPath  = getGaleriaDir();
+const allFiles     = existsSync(galeriaPath)
+  ? readdirSync(galeriaPath).filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f)).sort()
+  : [];
 const activeFiles  = activeImages.map(img => img.file);
 const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
 ---

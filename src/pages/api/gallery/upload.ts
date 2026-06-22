@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { writeFileSync, readdirSync } from 'node:fs';
+import { writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { getGaleriaDir } from '../../../lib/gallery';
 
 export const prerender = false;
 
@@ -34,7 +35,8 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const galeriaPath = path.join(process.cwd(), 'public', 'galeria');
+  const galeriaPath = getGaleriaDir();
+  mkdirSync(galeriaPath, { recursive: true });
   const existing = readdirSync(galeriaPath).filter(f => /^img_\d+\.(jpg|png|webp)$/i.test(f));
   const maxN = existing.reduce((max, f) => {
     const n = parseInt(f.replace(/^img_/, '').replace(/\.\w+$/, ''), 10);
