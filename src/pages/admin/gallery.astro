@@ -22,7 +22,7 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
   <header class="topbar" slot="topbar">
     <div class="topbar__left">
       <nav class="breadcrumb">
-        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <a href="/admin/">Publicaciones</a>
         <span class="breadcrumb__sep">›</span>
         <span class="breadcrumb__current">Galería</span>
       </nav>
@@ -77,7 +77,7 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
         {activeImages.map((img, i) => (
           <div class="img-card img-card--active" data-file={img.file} data-alt={img.alt} draggable="true">
             <img
-              src={`/Fundacion_Entrelineas/galeria/${img.file}`}
+              src={`/galeria/${img.file}`}
               alt={img.alt}
               class="img-card__photo"
               loading="lazy"
@@ -103,7 +103,7 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
         {inactiveFiles.map(file => (
           <div class="img-card img-card--inactive" data-file={file}>
             <img
-              src={`/Fundacion_Entrelineas/galeria/${file}`}
+              src={`/galeria/${file}`}
               alt={file}
               class="img-card__photo"
               loading="lazy"

@@ -3,7 +3,7 @@ import SectionLabel from '@components/atoms/SectionLabel.astro';
 import galleryConfig from '../../../gallery.config.json';
 
 const images = galleryConfig.images.map(img => ({
-  src: `/Fundacion_Entrelineas/galeria/${img.file}`,
+  src: `/galeria/${img.file}`,
   alt: img.alt,
 }));
 ---

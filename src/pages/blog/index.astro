@@ -67,12 +67,12 @@ const countByCategory = categories.reduce<Record<string, number>>((acc, cat) => 
                 <time class="blog-card__date" datetime={post.pubDate}>{date}</time>
               </div>
               <h2 class="blog-card__title">
-                <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`}>{post.title}</a>
+                <a href={`/blog/${post.slug}/`}>{post.title}</a>
               </h2>
               <p class="blog-card__description">{post.description}</p>
               <div class="blog-card__footer">
                 <span class="blog-card__author">{post.author}</span>
-                <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`} class="blog-card__link">
+                <a href={`/blog/${post.slug}/`} class="blog-card__link">
                   Leer más →
                 </a>
               </div>

@@ -12,7 +12,7 @@ const today = new Date().toISOString().split('T')[0];
   <header class="topbar" slot="topbar">
     <div class="topbar__left">
       <nav class="breadcrumb">
-        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <a href="/admin/">Publicaciones</a>
         <span class="breadcrumb__sep">›</span>
         <span class="breadcrumb__current">Nueva entrada</span>
       </nav>
@@ -21,7 +21,7 @@ const today = new Date().toISOString().split('T')[0];
       <span class="autosave" id="autosave-status">
         <span class="autosave__dot"></span> Sin cambios
       </span>
-      <a href="/Fundacion_Entrelineas/admin/" class="btn btn--ghost btn--sm">Cancelar</a>
+      <a href="/admin/" class="btn btn--ghost btn--sm">Cancelar</a>
       <button class="btn btn--outline btn--sm" onclick="handleSave('draft')">Guardar borrador</button>
       <button class="btn btn--primary btn--sm" onclick="handleSave('published')">Publicar →</button>
     </div>

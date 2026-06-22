@@ -27,7 +27,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   <header class="topbar" slot="topbar">
     <div class="topbar__left">
       <nav class="breadcrumb">
-        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <a href="/admin/">Publicaciones</a>
         <span class="breadcrumb__sep">›</span>
         <span class="breadcrumb__current" title={post.title}>
           {post.title.length > 42 ? post.title.slice(0, 42) + '…' : post.title}
@@ -40,7 +40,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
         Guardado
       </span>
       <a
-        href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+        href={`/blog/${post.slug}/`}
         target="_blank"
         class="btn btn--ghost btn--sm"
       >Ver publicación →</a>
@@ -66,7 +66,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
       <code style="font-size:0.72rem;background:var(--editorial);padding:0.1rem 0.4rem">{post.id}</code>
     </span>
     <a
-      href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+      href={`/blog/${post.slug}/`}
       target="_blank"
       class="info-bar__link"
     >/blog/{post.slug}</a>
