@@ -1,17 +1,11 @@
 ---
-// Gallery with editorial light background + lightbox
 import SectionLabel from '@components/atoms/SectionLabel.astro';
+import galleryConfig from '../../../gallery.config.json';
 
-const images = [
-  { src: '/Fundacion_Entrelineas/galeria/img_01.jpg', alt: 'Tertulia literaria Entrelíneas' },
-  { src: '/Fundacion_Entrelineas/galeria/img_05.jpg', alt: 'Encuentro cultural Entrelíneas' },
-  { src: '/Fundacion_Entrelineas/galeria/img_07.jpg', alt: 'Actividad Entrelíneas' },
-  { src: '/Fundacion_Entrelineas/galeria/img_13.jpg', alt: 'Festival de lectura' },
-  { src: '/Fundacion_Entrelineas/galeria/img_15.jpg', alt: 'Café filosófico' },
-  { src: '/Fundacion_Entrelineas/galeria/img_17.jpg', alt: 'Taller de escritura' },
-  { src: '/Fundacion_Entrelineas/galeria/img_19.jpg', alt: 'Promotores de lectura' },
-  { src: '/Fundacion_Entrelineas/galeria/img_23.jpg', alt: 'Comunidad lectora Entrelíneas' },
-];
+const images = galleryConfig.images.map(img => ({
+  src: `/galeria/${img.file}`,
+  alt: img.alt,
+}));
 ---
 
 <section class="gallery" id="galeria">

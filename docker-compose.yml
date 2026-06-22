@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: entrelineas
+      POSTGRES_USER: entrelineas
+      POSTGRES_PASSWORD: entrelineas_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      DATABASE_URL: postgres://entrelineas:entrelineas_dev@postgres:5432/entrelineas
+      AUTH_SECRET: dev_secret_cambia_en_produccion_32chars
+      SEED_ADMIN_EMAIL: admin@entrelineas.org
+      SEED_ADMIN_PASSWORD: entrelineas2025
+      SEED_ADMIN_NAME: Administrador
+    depends_on:
+      - postgres
+    volumes:
+      - covers_data:/app/dist/client/covers
+      - galeria_data:/app/dist/client/galeria
+
+volumes:
+  postgres_data:
+  covers_data:
+  galeria_data:

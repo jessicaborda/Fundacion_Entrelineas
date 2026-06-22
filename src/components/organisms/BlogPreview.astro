@@ -31,12 +31,12 @@ const posts = (await getCollection('blog'))
             <time class="bp-card__date" datetime={post.data.pubDate.toISOString()}>{date}</time>
           </div>
           <h3 class="bp-card__title">
-            <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`}>{post.data.title}</a>
+            <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
           </h3>
           <p class="bp-card__desc">{post.data.description}</p>
           <div class="bp-card__footer">
             <span class="bp-card__author">{post.data.author}</span>
-            <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`} class="bp-card__link">
+            <a href={`/blog/${post.slug}/`} class="bp-card__link">
               Leer más →
             </a>
           </div>
@@ -46,7 +46,7 @@ const posts = (await getCollection('blog'))
   </div>
 
   <div class="blog-preview__cta">
-    <a href="/Fundacion_Entrelineas/blog/" class="blog-preview__btn">
+    <a href="/blog/" class="blog-preview__btn">
       Ver todas las publicaciones
     </a>
   </div>

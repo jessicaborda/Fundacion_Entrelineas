@@ -1,34 +1,17 @@
 ---
+export const prerender = false;
 import AdminLayout from '@layouts/AdminLayout.astro';
-
-export function getStaticPaths() {
-  return [
-    { params: { id: '1' } },
-    { params: { id: '2' } },
-    { params: { id: '3' } },
-  ];
-}
+import { sql } from '../../../lib/db';
+import type { Post } from '../../../lib/schema';
 
 const { id } = Astro.params;
 
+const [raw] = await sql<Post[]>`SELECT * FROM posts WHERE id = ${id}`;
+if (!raw) return Astro.redirect(`/admin/`);
+
 const post = {
-  id,
-  title:           'La lectura como acto político',
-  slug:            'la-lectura-como-acto-politico',
-  description:     'Pensar la lectura como práctica que transforma no solo al individuo sino al tejido colectivo en que vivimos.',
-  body:            '<h2>El lector como ciudadano</h2><p>Entendemos por "político" no la actividad de partidos o elecciones, sino algo más primario: la capacidad de tomar posición en el mundo que habitamos.</p><h2>El libro como bien común</h2><p>La lectura no forma ciudadanos porque transmite información cívica, sino porque ejercita la capacidad de habitar mundos diferentes al propio.</p>',
-  author:          'Miguel Ángel Palacios Quitián',
-  category:        'Ensayo',
-  pubDate:         '2025-09-15',
-  featured:        true,
-  tags:            ['lectura', 'democracia', 'pensamiento crítico'],
-  status:          'published',
-  coverUrl:        '',
-  coverAlt:        '',
-  metaTitle:       '',
-  metaDescription: '',
-  createdAt:       '2025-09-10T14:32:00Z',
-  updatedAt:       '2025-09-15T09:18:00Z',
+  ...raw,
+  tags: raw.tags ? raw.tags.split(',').filter(Boolean) : [],
 };
 
 const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
@@ -44,7 +27,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   <header class="topbar" slot="topbar">
     <div class="topbar__left">
       <nav class="breadcrumb">
-        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <a href="/admin/">Publicaciones</a>
         <span class="breadcrumb__sep">›</span>
         <span class="breadcrumb__current" title={post.title}>
           {post.title.length > 42 ? post.title.slice(0, 42) + '…' : post.title}
@@ -57,7 +40,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
         Guardado
       </span>
       <a
-        href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+        href={`/blog/${post.slug}/`}
         target="_blank"
         class="btn btn--ghost btn--sm"
       >Ver publicación →</a>
@@ -83,7 +66,7 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
       <code style="font-size:0.72rem;background:var(--editorial);padding:0.1rem 0.4rem">{post.id}</code>
     </span>
     <a
-      href={`/Fundacion_Entrelineas/blog/${post.slug}/`}
+      href={`/blog/${post.slug}/`}
       target="_blank"
       class="info-bar__link"
     >/blog/{post.slug}</a>
@@ -381,12 +364,26 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   });
 
   // ── Imagen ──
-  function handleImageSelect(input) {
+  async function handleImageSelect(input) {
     const file = input.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => showImagePreview(e.target.result);
-    reader.readAsDataURL(file);
+
+    setAutosaveStatus('saving');
+    const form = new FormData();
+    form.append('file', file);
+    form.append('context', 'cover');
+
+    try {
+      const res = await fetch(`/api/media/upload`, { method: 'POST', body: form });
+      const json = await res.json();
+      if (!res.ok) { window.showToast(json.error ?? 'Error al subir imagen'); setAutosaveStatus('dirty'); return; }
+      document.getElementById('f-cover-url').value = json.url;
+      showImagePreview(json.url);
+      markDirty();
+    } catch {
+      window.showToast('Error de conexión al subir la imagen');
+      setAutosaveStatus('dirty');
+    }
   }
 
   function handleUrlImage(url) {
@@ -430,9 +427,19 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   // ── Dirty state ──
   let isDirty = false;
   function markDirty() {
-    isDirty = true;
+    if (!isDirty) { isDirty = true; setAutosaveStatus('dirty'); }
+  }
+
+  function setAutosaveStatus(state) {
     const el = document.getElementById('autosave-status');
-    if (el) el.innerHTML = '<span class="autosave__dot"></span> Cambios sin guardar';
+    if (!el) return;
+    const labels = {
+      dirty:  '<span class="autosave__dot"></span> Cambios sin guardar',
+      saving: '<span class="autosave__dot"></span> Guardando…',
+      saved:  '<span class="autosave__dot" style="background:var(--success)"></span> Guardado',
+    };
+    el.className = state === 'saved' ? 'autosave autosave--saved' : 'autosave';
+    el.innerHTML = labels[state] ?? labels.saved;
   }
 
   // ── Validación ──
@@ -445,40 +452,67 @@ const updatedDate = new Date(post.updatedAt).toLocaleDateString('es-CO', {
   }
 
   // ── Guardar ──
-  function handleSave(status) {
+  async function handleSave(status, silent = false) {
     if (!validate()) { window.showToast('Completa los campos requeridos'); return; }
+    setAutosaveStatus('saving');
+    const body = quill ? quill.root.innerHTML : '';
+
     const data = {
-      id:              postId,
-      title:           titleInput?.value,
-      slug:            slugInput?.value,
-      description:     descInput?.value,
-      body:            quill ? quill.root.innerHTML : '',
-      author:          document.getElementById('f-author')?.value,
+      title:           titleInput?.value.trim(),
+      slug:            slugInput?.value.trim(),
+      description:     descInput?.value.trim(),
+      body:            (body === '<p><br></p>' || body.trim() === '') ? '' : body,
+      author:          document.getElementById('f-author')?.value.trim(),
       category:        document.getElementById('f-category')?.value,
       pubDate:         document.getElementById('f-pubDate')?.value,
       featured:        document.getElementById('f-featured')?.checked,
       tags:            document.getElementById('f-tags')?.value,
-      status,
-      metaTitle:       document.getElementById('f-meta-title')?.value,
-      metaDescription: document.getElementById('f-meta-desc')?.value,
       coverUrl:        document.getElementById('f-cover-url')?.value,
       coverAlt:        document.getElementById('f-cover-alt')?.value,
+      metaTitle:       document.getElementById('f-meta-title')?.value,
+      metaDescription: document.getElementById('f-meta-desc')?.value,
+      status,
     };
-    console.log(`[Backend pendiente] PUT /api/posts/${postId}`, data);
-    isDirty = false;
-    const el = document.getElementById('autosave-status');
-    if (el) { el.className = 'autosave autosave--saved'; el.innerHTML = '<span class="autosave__dot" style="background:var(--success)"></span> Guardado'; }
-    window.showToast(status === 'published' ? 'Entrada actualizada correctamente' : 'Guardado como borrador');
+
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        isDirty = false;
+        setAutosaveStatus('saved');
+        if (!silent) window.showToast(status === 'published' ? 'Entrada actualizada correctamente' : 'Guardado como borrador');
+      } else {
+        setAutosaveStatus('dirty');
+        if (!silent) window.showToast('Error al guardar. Intenta de nuevo.');
+      }
+    } catch {
+      setAutosaveStatus('dirty');
+      if (!silent) window.showToast('Error de conexión. Intenta de nuevo.');
+    }
   }
+
+  // ── Autosave cada 30s ──
+  setInterval(() => { if (isDirty) handleSave(document.getElementById('f-status')?.value ?? 'draft', true); }, 30_000);
 
   // ── Modal eliminar ──
   function openDeleteModal() { document.getElementById('delete-modal').classList.add('modal-backdrop--open'); }
   function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('modal-backdrop--open'); }
-  function confirmDelete() {
-    console.log(`[Backend pendiente] DELETE /api/posts/${postId}`);
+  async function confirmDelete() {
     closeDeleteModal();
-    window.showToast('Entrada eliminada');
-    setTimeout(() => { window.location.href = '/Fundacion_Entrelineas/admin/'; }, 1500);
+    try {
+      const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.showToast('Entrada eliminada');
+        setTimeout(() => { window.location.href = `/admin/`; }, 1200);
+      } else {
+        window.showToast('No se pudo eliminar. Intenta de nuevo.');
+      }
+    } catch {
+      window.showToast('Error de conexión al eliminar.');
+    }
   }
 
   window.addEventListener('beforeunload', e => { if (isDirty) e.preventDefault(); });

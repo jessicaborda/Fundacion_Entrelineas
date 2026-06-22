@@ -1,27 +1,30 @@
 ---
-import { getCollection } from 'astro:content';
+export const prerender = false;
+import { sql } from '../../lib/db';
+import type { Post } from '../../lib/schema';
 import BlogLayout from '@layouts/BlogLayout.astro';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
-}
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect(`/blog/`);
 
-const { post } = Astro.props;
-const { Content } = await post.render();
+const [post] = await sql<Post[]>`
+  SELECT * FROM posts WHERE slug = ${slug} AND status = 'published'
+`;
+
+if (!post) return Astro.redirect(`/blog/`);
 ---
 
 <BlogLayout
-  title={post.data.title}
-  description={post.data.description}
-  author={post.data.author}
-  pubDate={post.data.pubDate}
-  category={post.data.category}
-  coverImage={post.data.coverImage}
-  coverImageAlt={post.data.coverImageAlt}
+  title={post.title}
+  description={post.description}
+  author={post.author}
+  pubDate={new Date(post.pubDate)}
+  category={post.category}
+  coverImage={post.coverUrl || undefined}
+  coverImageAlt={post.coverAlt || undefined}
 >
-  <Content />
+  {post.body
+    ? <div set:html={post.body} />
+    : <p style="color: rgba(7,5,35,0.45); font-style: italic;">Este artículo aún no tiene contenido.</p>
+  }
 </BlogLayout>

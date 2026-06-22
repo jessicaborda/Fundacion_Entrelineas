@@ -1,0 +1,302 @@
+---
+export const prerender = false;
+import AdminLayout from '@layouts/AdminLayout.astro';
+import { sql } from '../../lib/db';
+import type { User } from '../../lib/schema';
+
+type SafeUser = Omit<User, 'passwordHash'>;
+const users = await sql<SafeUser[]>`
+  SELECT id, email, name, created_at FROM users ORDER BY created_at ASC
+`;
+
+const currentUserId = Astro.locals.user?.id;
+---
+
+<AdminLayout title="Usuarios" activeNav="users">
+
+  <header class="topbar" slot="topbar">
+    <div class="topbar__left">
+      <nav class="breadcrumb">
+        <span class="breadcrumb__current">Usuarios</span>
+      </nav>
+    </div>
+    <div class="topbar__actions">
+      <button class="btn btn--primary btn--sm" onclick="openCreateModal()">+ Nuevo usuario</button>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <span class="table-toolbar__title">Usuarios con acceso al panel</span>
+      <span class="muted">{users.length} usuario{users.length !== 1 ? 's' : ''}</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Miembro desde</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(user => (
+          <tr>
+            <td class="td-name">
+              {user.name}
+              {user.id === currentUserId && (
+                <span class="badge-you">Tú</span>
+              )}
+            </td>
+            <td class="td-meta">{user.email}</td>
+            <td class="td-meta">
+              {new Date(user.createdAt).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </td>
+            <td class="td-actions">
+              <button
+                class="btn btn--outline btn--sm"
+                onclick="openEditModal(this)"
+                data-id={user.id}
+                data-name={user.name}
+              >
+                Editar
+              </button>
+              {user.id !== currentUserId && (
+                <button
+                  class="btn btn--ghost btn--sm"
+                  onclick="openDeleteModal(this)"
+                  data-id={user.id}
+                  data-name={user.name}
+                >
+                  Eliminar
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Crear usuario -->
+  <div class="modal-backdrop" id="create-modal">
+    <div class="modal modal--create">
+      <h2 class="modal__title">Nuevo usuario</h2>
+      <div class="field">
+        <label for="c-name">Nombre</label>
+        <input type="text" id="c-name" placeholder="Nombre completo" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="c-email">Email</label>
+        <input type="email" id="c-email" placeholder="correo@ejemplo.com" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="c-password">Contraseña <span class="label-hint">mín. 8 caracteres</span></label>
+        <input type="password" id="c-password" placeholder="••••••••" autocomplete="new-password" />
+      </div>
+      <p class="field-error" id="create-error" style="display:none"></p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" onclick="closeCreateModal()">Cancelar</button>
+        <button class="btn btn--primary" onclick="submitCreate()">Crear usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar usuario -->
+  <div class="modal-backdrop" id="edit-modal">
+    <div class="modal modal--create">
+      <h2 class="modal__title">Editar usuario</h2>
+      <input type="hidden" id="e-id" />
+      <div class="field">
+        <label for="e-name">Nombre</label>
+        <input type="text" id="e-name" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="e-password">Nueva contraseña <span class="label-hint">dejar en blanco para no cambiar</span></label>
+        <input type="password" id="e-password" placeholder="••••••••" autocomplete="new-password" />
+      </div>
+      <p class="field-error" id="edit-error" style="display:none"></p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" onclick="closeEditModal()">Cancelar</button>
+        <button class="btn btn--primary" onclick="submitEdit()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar eliminar -->
+  <div class="modal-backdrop" id="delete-modal">
+    <div class="modal">
+      <h2 class="modal__title">¿Eliminar usuario?</h2>
+      <p class="modal__body">
+        "<strong id="delete-name"></strong>" perderá el acceso al panel. Esta acción no se puede deshacer.
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn--danger" onclick="submitDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+</AdminLayout>
+
+<style is:global>
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--dark);
+    overflow-x: auto;
+  }
+  .table-toolbar {
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border); gap: 1rem;
+  }
+  .table-toolbar__title { font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; }
+  .muted { font-family: var(--font); font-size: 0.78rem; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th {
+    text-align: left; padding: 0.625rem 1rem;
+    font-family: var(--font-heading); font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+    white-space: nowrap; background: var(--editorial);
+  }
+  td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(251,210,0,0.04); }
+
+  .td-name { font-family: var(--font-heading); font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 0.5rem; }
+  .td-meta { font-family: var(--font); color: var(--muted); white-space: nowrap; }
+  .td-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+  .badge-you {
+    display: inline-flex; align-items: center;
+    background: var(--primary); color: var(--dark);
+    font-family: var(--font-heading); font-size: 0.58rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .modal--create { border-top-color: var(--dark); }
+  .field-error { font-family: var(--font); font-size: 0.78rem; color: var(--danger); }
+</style>
+
+<script>
+  const base = import.meta.env.BASE_URL;
+
+  // ── Crear ──
+  function openCreateModal() {
+    (document.getElementById('c-name') as HTMLInputElement).value = '';
+    (document.getElementById('c-email') as HTMLInputElement).value = '';
+    (document.getElementById('c-password') as HTMLInputElement).value = '';
+    showError('create-error', '');
+    document.getElementById('create-modal')!.classList.add('modal-backdrop--open');
+  }
+  function closeCreateModal() { document.getElementById('create-modal')!.classList.remove('modal-backdrop--open'); }
+
+  async function submitCreate() {
+    const name     = (document.getElementById('c-name') as HTMLInputElement).value.trim();
+    const email    = (document.getElementById('c-email') as HTMLInputElement).value.trim();
+    const password = (document.getElementById('c-password') as HTMLInputElement).value;
+
+    try {
+      const res = await fetch(`${base}api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const msg = json.fields ? Object.values(json.fields).join(' · ') : (json.error ?? 'Error al crear usuario');
+        showError('create-error', msg);
+        return;
+      }
+      closeCreateModal();
+      window.showToast('Usuario creado correctamente');
+      setTimeout(() => location.reload(), 800);
+    } catch {
+      showError('create-error', 'Error de conexión');
+    }
+  }
+
+  // ── Editar ──
+  function openEditModal(btn: HTMLButtonElement) {
+    (document.getElementById('e-id') as HTMLInputElement).value = btn.dataset.id!;
+    (document.getElementById('e-name') as HTMLInputElement).value = btn.dataset.name!;
+    (document.getElementById('e-password') as HTMLInputElement).value = '';
+    showError('edit-error', '');
+    document.getElementById('edit-modal')!.classList.add('modal-backdrop--open');
+  }
+  function closeEditModal() { document.getElementById('edit-modal')!.classList.remove('modal-backdrop--open'); }
+
+  async function submitEdit() {
+    const id       = (document.getElementById('e-id') as HTMLInputElement).value;
+    const name     = (document.getElementById('e-name') as HTMLInputElement).value.trim();
+    const password = (document.getElementById('e-password') as HTMLInputElement).value;
+
+    const body: Record<string, string> = { name };
+    if (password) body.password = password;
+
+    try {
+      const res = await fetch(`${base}api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const msg = json.fields ? Object.values(json.fields).join(' · ') : (json.error ?? 'Error al actualizar');
+        showError('edit-error', msg);
+        return;
+      }
+      closeEditModal();
+      window.showToast('Usuario actualizado');
+      setTimeout(() => location.reload(), 800);
+    } catch {
+      showError('edit-error', 'Error de conexión');
+    }
+  }
+
+  // ── Eliminar ──
+  let pendingDeleteId = '';
+  function openDeleteModal(btn: HTMLButtonElement) {
+    pendingDeleteId = btn.dataset.id!;
+    document.getElementById('delete-name')!.textContent = btn.dataset.name!;
+    document.getElementById('delete-modal')!.classList.add('modal-backdrop--open');
+  }
+  function closeDeleteModal() { document.getElementById('delete-modal')!.classList.remove('modal-backdrop--open'); }
+
+  async function submitDelete() {
+    closeDeleteModal();
+    try {
+      const res = await fetch(`${base}api/users/${pendingDeleteId}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.showToast('Usuario eliminado');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        const json = await res.json();
+        window.showToast(json.error ?? 'No se pudo eliminar');
+      }
+    } catch {
+      window.showToast('Error de conexión');
+    }
+  }
+
+  function showError(id: string, msg: string) {
+    const el = document.getElementById(id)!;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  // Exponer para handlers inline
+  (window as any).openCreateModal  = openCreateModal;
+  (window as any).closeCreateModal = closeCreateModal;
+  (window as any).submitCreate     = submitCreate;
+  (window as any).openEditModal    = openEditModal;
+  (window as any).closeEditModal   = closeEditModal;
+  (window as any).submitEdit       = submitEdit;
+  (window as any).openDeleteModal  = openDeleteModal;
+  (window as any).closeDeleteModal = closeDeleteModal;
+  (window as any).submitDelete     = submitDelete;
+</script>

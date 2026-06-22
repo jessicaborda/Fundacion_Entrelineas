@@ -1,12 +1,13 @@
 ---
-// Blog Admin Panel — UI only, backend pendiente
-const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
+export const prerender = false;
+import { sql } from '../../lib/db';
+import type { Post } from '../../lib/schema';
 
-const mockPosts = [
-  { id: 1, title: 'La lectura como acto político', author: 'Miguel Ángel Palacios Quitián', category: 'Ensayo', pubDate: '2025-09-15', featured: true, status: 'published' },
-  { id: 2, title: 'Pensar desde Colombia', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-10-02', featured: false, status: 'published' },
-  { id: 3, title: 'Pequeños relatos, grandes joyas', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-08-20', featured: false, status: 'draft' },
-];
+const allPosts  = await sql<Post[]>`SELECT * FROM posts ORDER BY created_at DESC`;
+const total     = allPosts.length;
+const published = allPosts.filter(p => p.status === 'published').length;
+const drafts    = allPosts.filter(p => p.status === 'draft').length;
+const featured  = allPosts.filter(p => p.featured).length;
 ---
 
 <!DOCTYPE html>
@@ -15,7 +16,7 @@ const mockPosts = [
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — Entrelíneas</title>
-  <link rel="icon" href="/Fundacion_Entrelineas/logo.svg" />
+  <link rel="icon" href="/logo.svg" />
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link
     href="https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&f[]=amulya@400,500,600,700&display=swap"
@@ -329,32 +330,35 @@ const mockPosts = [
 
   <aside class="sidebar">
     <div class="sidebar__brand">
-      <img src="/Fundacion_Entrelineas/logo-light.svg" alt="Entrelíneas" class="sidebar__logo" />
+      <img src="/logo-light.svg" alt="Entrelíneas" class="sidebar__logo" />
       <p class="sidebar__label">Administración</p>
     </div>
     <nav class="sidebar__nav">
-      <a href="/Fundacion_Entrelineas/admin/" class="sidebar__link sidebar__link--active">
+      <a href="/admin/" class="sidebar__link sidebar__link--active">
         <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M8.385 12.308H15.615V11.308H8.385V12.308ZM8.385 15.077H15.615V14.077H8.385V15.077ZM8.385 17.847H12.615V16.847H8.385V17.847ZM5 21V3H14.5L19 7.5V21H5ZM14 8H18L14 4V8Z" fill="currentColor"/>
         </svg>
         Publicaciones
       </a>
-      <a href="/Fundacion_Entrelineas/admin/new" class="sidebar__link">
+      <a href="/admin/new" class="sidebar__link">
         <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/>
         </svg>
         Nueva entrada
       </a>
-      <a href="/Fundacion_Entrelineas/admin/gallery" class="sidebar__link">
+      <a href="/admin/gallery" class="sidebar__link">
         <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M21 3H3C2 3 1 4 1 5v14c0 1 1 2 2 2h18c1 0 2-1 2-2V5c0-1-1-2-2-2zm0 16H3V5h18v14zm-9-7l-4 5h8l-3-4-1-1z" fill="currentColor"/>
         </svg>
         Galería
       </a>
       <div class="sidebar__divider"></div>
-      <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="sidebar__link">
+      <a href="/blog/" target="_blank" class="sidebar__link">
         <span class="sidebar__icon">↗</span> Ver blog
       </a>
+      <button class="sidebar__link sidebar__link--logout" id="logout-btn" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="sidebar__icon">⎋</span> Cerrar sesión
+      </button>
     </nav>
     <div class="sidebar__footer">Entrelíneas © 2025</div>
   </aside>
@@ -363,27 +367,27 @@ const mockPosts = [
     <header class="topbar">
       <span class="topbar__title">Publicaciones del blog</span>
       <div class="topbar__actions">
-        <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="btn btn--ghost btn--sm">Ver blog →</a>
-        <a href="/Fundacion_Entrelineas/admin/new" class="btn btn--primary btn--sm">✦ Nueva entrada</a>
+        <a href="/blog/" target="_blank" class="btn btn--ghost btn--sm">Ver blog →</a>
+        <a href="/admin/new" class="btn btn--primary btn--sm">✦ Nueva entrada</a>
       </div>
     </header>
 
     <div class="content">
       <div class="stats">
         <div class="stat-card">
-          <span class="stat-card__n">3</span>
+          <span class="stat-card__n">{total}</span>
           <span class="stat-card__label">Total publicaciones</span>
         </div>
         <div class="stat-card">
-          <span class="stat-card__n">2</span>
+          <span class="stat-card__n">{published}</span>
           <span class="stat-card__label">Publicadas</span>
         </div>
         <div class="stat-card">
-          <span class="stat-card__n">1</span>
+          <span class="stat-card__n">{drafts}</span>
           <span class="stat-card__label">Borradores</span>
         </div>
         <div class="stat-card stat-card--accent">
-          <span class="stat-card__n">1</span>
+          <span class="stat-card__n">{featured}</span>
           <span class="stat-card__label">Destacadas</span>
         </div>
       </div>
@@ -405,7 +409,7 @@ const mockPosts = [
             </tr>
           </thead>
           <tbody id="posts-tbody">
-            {mockPosts.map(post => (
+            {allPosts.map(post => (
               <tr data-title={post.title.toLowerCase()}>
                 <td class="td-title">
                   {post.title}
@@ -420,8 +424,8 @@ const mockPosts = [
                   </span>
                 </td>
                 <td class="td-actions">
-                  <a href={`/Fundacion_Entrelineas/admin/edit/${post.id}`} class="btn btn--outline btn--sm">Editar</a>
-                  <button class="btn btn--ghost btn--sm" onclick="openDeleteModal(this)" data-title={post.title}>Eliminar</button>
+                  <a href={`/admin/edit/${post.id}`} class="btn btn--outline btn--sm">Editar</a>
+                  <button class="btn btn--ghost btn--sm" onclick="openDeleteModal(this)" data-id={post.id} data-title={post.title}>Eliminar</button>
                 </td>
               </tr>
             ))}
@@ -445,6 +449,11 @@ const mockPosts = [
   </div>
 
   <script>
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await fetch(`/api/auth/logout`, { method: 'POST' });
+      window.location.href = `/admin/login`;
+    });
+
     document.getElementById('search-input')?.addEventListener('input', function() {
       const q = this.value.toLowerCase();
       document.querySelectorAll('#posts-tbody tr').forEach(row => {
@@ -452,16 +461,29 @@ const mockPosts = [
       });
     });
 
+    let pendingDeleteId = '';
+
     function openDeleteModal(btn: HTMLButtonElement) {
+      pendingDeleteId = btn.dataset.id || '';
       document.getElementById('delete-modal-title')!.textContent = btn.dataset.title || '';
       document.getElementById('delete-modal')!.classList.add('modal-backdrop--open');
     }
     function closeDeleteModal() {
       document.getElementById('delete-modal')!.classList.remove('modal-backdrop--open');
     }
-    function confirmDelete() {
+    async function confirmDelete() {
       closeDeleteModal();
-      console.log('[Backend pendiente] DELETE /api/posts/:id');
+      if (!pendingDeleteId) return;
+      try {
+        const res = await fetch(`/api/posts/${pendingDeleteId}`, { method: 'DELETE' });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('No se pudo eliminar la publicación. Intenta de nuevo.');
+        }
+      } catch {
+        alert('Error de conexión al eliminar.');
+      }
     }
   </script>
 
