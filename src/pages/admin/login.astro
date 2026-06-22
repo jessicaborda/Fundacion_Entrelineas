@@ -2,6 +2,8 @@
 export const prerender = false;
 
 import { getUserFromRequest } from '../../lib/auth';
+import { Image } from 'astro:assets';
+import logo from '@assets/logo.svg';
 
 const user = await getUserFromRequest(Astro.request);
 if (user) return Astro.redirect(`/admin/`);
@@ -157,7 +159,7 @@ if (user) return Astro.redirect(`/admin/`);
 <body>
   <div class="login-card">
     <div class="login-brand">
-      <img src="/logo.svg" alt="Entrelíneas" />
+      <Image src={logo} alt="Entrelíneas" />
       <span class="login-brand__label">Panel de administración</span>
     </div>
 

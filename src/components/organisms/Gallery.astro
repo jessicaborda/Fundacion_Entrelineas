@@ -1,5 +1,6 @@
 ---
 import SectionLabel from '@components/atoms/SectionLabel.astro';
+import { Image } from 'astro:assets';
 import galleryConfig from '../../../gallery.config.json';
 
 const images = galleryConfig.images.map(img => ({
@@ -23,7 +24,7 @@ const images = galleryConfig.images.map(img => ({
         data-index={i}
         aria-label={`Ver imagen: ${img.alt}`}
       >
-        <img src={img.src} alt={img.alt} class="gallery__img" loading="lazy" />
+        <Image src={img.src} alt={img.alt} class="gallery__img" width={800} height={600} loading="lazy" />
       </button>
     ))}
   </div>
@@ -39,7 +40,7 @@ const images = galleryConfig.images.map(img => ({
   <div class="lightbox__track" id="lightbox-track">
     {images.map((img, i) => (
       <div class="lightbox__slide" data-index={i}>
-        <img src={img.src} alt={img.alt} class="lightbox__img" />
+        <Image src={img.src} alt={img.alt} class="lightbox__img" width={1200} height={900} loading="lazy" />
       </div>
     ))}
   </div>

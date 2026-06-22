@@ -2,6 +2,8 @@
 export const prerender = false;
 import { sql } from '../../lib/db';
 import type { Post } from '../../lib/schema';
+import { Image } from 'astro:assets';
+import logoLight from '@assets/logo-light.svg';
 
 const allPosts  = await sql<Post[]>`SELECT * FROM posts ORDER BY created_at DESC`;
 const total     = allPosts.length;
@@ -330,7 +332,7 @@ const featured  = allPosts.filter(p => p.featured).length;
 
   <aside class="sidebar">
     <div class="sidebar__brand">
-      <img src="/logo-light.svg" alt="Entrelíneas" class="sidebar__logo" />
+      <Image src={logoLight} alt="Entrelíneas" class="sidebar__logo" />
       <p class="sidebar__label">Administración</p>
     </div>
     <nav class="sidebar__nav">
