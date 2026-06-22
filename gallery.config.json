@@ -1,0 +1,14 @@
+{
+  "images": [
+    { "file": "img_01.jpg", "alt": "Tertulia literaria Entrelíneas" },
+    { "file": "img_05.jpg", "alt": "Encuentro cultural Entrelíneas" },
+    { "file": "img_07.jpg", "alt": "Actividad Entrelíneas" },
+    { "file": "img_13.jpg", "alt": "Festival de lectura" },
+    { "file": "img_15.jpg", "alt": "Café filosófico" },
+    { "file": "img_17.jpg", "alt": "Taller de escritura" },
+    { "file": "img_19.jpg", "alt": "Promotores de lectura" },
+    { "file": "img_23.jpg", "alt": "Comunidad lectora Entrelíneas" }
+  ],
+  "updatedAt": "2026-06-22T00:00:00Z",
+  "updatedBy": "admin"
+}

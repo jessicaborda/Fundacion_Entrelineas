@@ -1,30 +1,37 @@
 ---
+export const prerender = false;
 import AdminLayout from '@layouts/AdminLayout.astro';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
+import { readGalleryConfig } from '../../lib/gallery';
 
-// Imágenes actualmente visibles en la sección Galería (Gallery.astro)
-const activeImages = [
-  { file: 'img_01.jpg', alt: 'Tertulia literaria Entrelíneas' },
-  { file: 'img_05.jpg', alt: 'Encuentro cultural Entrelíneas' },
-  { file: 'img_07.jpg', alt: 'Actividad Entrelíneas' },
-  { file: 'img_13.jpg', alt: 'Festival de lectura' },
-  { file: 'img_15.jpg', alt: 'Café filosófico' },
-  { file: 'img_17.jpg', alt: 'Taller de escritura' },
-  { file: 'img_19.jpg', alt: 'Promotores de lectura' },
-  { file: 'img_23.jpg', alt: 'Comunidad lectora Entrelíneas' },
-];
+const galleryConfig = readGalleryConfig();
+const activeImages  = galleryConfig.images;
 
-// Todas las imágenes disponibles en /public/galeria/
-const allFiles = Array.from({ length: 24 }, (_, i) => `img_${String(i + 1).padStart(2, '0')}.jpg`);
-const activeFiles = activeImages.map(img => img.file);
+const galeriaPath  = path.join(process.cwd(), 'public', 'galeria');
+const allFiles     = readdirSync(galeriaPath)
+  .filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f))
+  .sort();
+const activeFiles  = activeImages.map(img => img.file);
 const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
 ---
 
 <AdminLayout title="Galería" activeNav="gallery">
-  <div class="breadcrumb" slot="breadcrumb">
-    <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
-    <span class="breadcrumb__sep">›</span>
-    <span class="breadcrumb__current">Galería</span>
-  </div>
+
+  <!-- Topbar -->
+  <header class="topbar" slot="topbar">
+    <div class="topbar__left">
+      <nav class="breadcrumb">
+        <a href="/Fundacion_Entrelineas/admin/">Publicaciones</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">Galería</span>
+      </nav>
+    </div>
+    <div class="topbar__actions">
+      <span class="autosave" id="save-status"></span>
+      <button class="btn btn--primary btn--sm" id="save-gallery-btn">Guardar galería →</button>
+    </div>
+  </header>
 
   <div class="gallery-admin">
 
@@ -32,12 +39,15 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
     <div class="page-header">
       <div>
         <h1 class="page-title">Galería de imágenes</h1>
-        <p class="page-subtitle">Gestiona las imágenes que aparecen en la sección Galería del sitio. Máximo 8 imágenes activas.</p>
+        <p class="page-subtitle">Reordena por arrastre · máx. 8 activas · los cambios se publican vía GitHub Actions (~3 min).</p>
       </div>
-      <div class="page-header__note">
-        <span class="note-tag">Backend pendiente</span>
-        Los cambios aquí son visuales — para aplicarlos, edita <code>Gallery.astro</code>.
-      </div>
+    </div>
+
+    <!-- Deploy status -->
+    <div id="deploy-banner" style="display:none" class="deploy-banner">
+      <span id="deploy-icon">⏳</span>
+      <span id="deploy-msg">Publicando cambios…</span>
+      <a id="deploy-link" href="#" target="_blank" style="display:none;font-size:0.75rem;color:inherit;opacity:0.7">Ver en GitHub →</a>
     </div>
 
     <!-- Stats -->
@@ -65,7 +75,7 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
 
       <div class="img-grid" id="active-grid">
         {activeImages.map((img, i) => (
-          <div class="img-card img-card--active" data-file={img.file} draggable="true">
+          <div class="img-card img-card--active" data-file={img.file} data-alt={img.alt} draggable="true">
             <img
               src={`/Fundacion_Entrelineas/galeria/${img.file}`}
               alt={img.alt}
@@ -100,22 +110,39 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
             />
             <div class="img-card__overlay">
               <span class="img-card__name">{file}</span>
-              <button class="img-card__add" aria-label={`Agregar ${file}`} data-file={file}>+</button>
+              <div style="display:flex;gap:0.25rem">
+                <button class="img-card__add"    aria-label={`Agregar ${file}`}   data-file={file}>+</button>
+                <button class="img-card__delete" aria-label={`Eliminar ${file}`}  data-file={file} title="Eliminar imagen del repositorio">🗑</button>
+              </div>
             </div>
           </div>
         ))}
       </div>
     </section>
 
-    <!-- Panel de código generado -->
+    <!-- Subir imagen -->
     <section class="section-block">
       <div class="section-block__header">
-        <h2 class="section-title">Código para copiar</h2>
-        <p class="section-hint">Copia este array en <code>src/components/organisms/Gallery.astro</code> para aplicar los cambios</p>
+        <h2 class="section-title">Subir imagen nueva</h2>
+        <p class="section-hint">JPG, PNG o WebP · máx. 5 MB · se añade al repositorio automáticamente</p>
       </div>
-      <div class="code-panel">
-        <button class="code-copy-btn" id="copy-btn" aria-label="Copiar código">Copiar</button>
-        <pre class="code-block" id="code-output"></pre>
+      <div style="padding:1.25rem">
+        <div class="upload-drop" id="upload-drop" onclick="document.getElementById('upload-file-input').click()">
+          <input type="file" id="upload-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" />
+          <span style="font-size:1.5rem;opacity:0.4">🖼</span>
+          <p style="font-family:var(--font);font-size:0.8rem;color:var(--muted);margin:0.375rem 0 0">
+            Haz clic o arrastra aquí
+          </p>
+        </div>
+        <div id="upload-preview-area" style="display:none;margin-top:0.875rem">
+          <img id="upload-img-preview" src="" alt="" style="height:80px;object-fit:cover;border:2px solid var(--primary)" />
+          <div style="margin-top:0.5rem;display:flex;gap:0.5rem;align-items:center">
+            <input id="upload-alt-input" type="text" placeholder="Texto alternativo (alt)" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--border);border-bottom:2px solid var(--border);font-size:0.8rem;font-family:var(--font)" />
+            <button id="upload-confirm-btn" class="btn btn--primary btn--sm">Subir</button>
+            <button id="upload-cancel-btn" class="btn btn--ghost btn--sm">Cancelar</button>
+          </div>
+          <p id="upload-status" style="font-size:0.75rem;color:var(--muted);margin-top:0.375rem;font-family:var(--font)"></p>
+        </div>
       </div>
     </section>
 
@@ -351,156 +378,211 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
     padding: 0.15rem 0.4rem;
   }
 
-  /* Code panel */
-  .code-panel {
-    position: relative;
-    padding: 1.25rem;
-  }
-  .code-block {
-    background: var(--dark);
-    color: rgba(251,210,0,0.9);
-    font-family: monospace;
-    font-size: 0.78rem;
-    line-height: 1.6;
-    padding: 1.25rem;
-    overflow-x: auto;
-    white-space: pre;
-    margin: 0;
-    min-height: 60px;
-  }
-  .code-copy-btn {
-    position: absolute;
-    top: 1.75rem;
-    right: 1.75rem;
-    background: var(--primary);
-    color: var(--dark);
-    border: none;
+  /* Deploy banner */
+  .deploy-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(251,210,0,0.12);
+    border: 1px solid rgba(251,210,0,0.4);
+    border-left: 4px solid var(--primary);
     font-family: var(--font-heading);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: 0.02em;
+  }
+  .deploy-banner--success { background: rgba(26,122,74,0.08); border-color: var(--success); border-left-color: var(--success); }
+  .deploy-banner--failure { background: rgba(192,57,43,0.08); border-color: var(--danger); border-left-color: var(--danger); }
+
+  /* Upload drop area */
+  .upload-drop {
+    border: 2px dashed var(--border);
+    padding: 1.75rem;
+    text-align: center;
     cursor: pointer;
-    z-index: 1;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .upload-drop:hover, .upload-drop--over {
+    border-color: var(--dark);
+    background: var(--editorial);
+  }
+
+  /* Delete button for inactive images */
+  .img-card__delete {
+    background: rgba(192,57,43,0.15);
+    color: var(--danger);
+    border: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     transition: background 0.15s;
   }
-  .code-copy-btn:hover { background: #e6c100; }
-  .code-copy-btn--copied { background: #1a7a4a; color: #fff; }
+  .img-card__delete:hover { background: var(--danger); color: #fff; }
 </style>
 
 <script>
-  // ── Estado ──────────────────────────────────────────────
   const MAX = 8;
+  const BASE = import.meta.env.BASE_URL;
 
-  // Leer imágenes activas iniciales desde el DOM
-  let activeImages: string[] = Array.from(
+  // ── Estado ──────────────────────────────────────────────
+  // activeImages: { file, alt }[]  — orden = orden visual
+  let activeImages: Array<{ file: string; alt: string }> = Array.from(
     document.querySelectorAll<HTMLElement>('#active-grid .img-card')
-  ).map(el => el.dataset.file!);
+  ).map(el => ({ file: el.dataset.file!, alt: el.dataset.alt ?? '' }));
 
-  // ── Referencias DOM ──────────────────────────────────────
+  // ── DOM refs ─────────────────────────────────────────────
   const activeGrid   = document.getElementById('active-grid')!;
   const inactiveGrid = document.getElementById('inactive-grid')!;
   const activeCount  = document.getElementById('active-count')!;
   const statActive   = document.getElementById('stat-active')!;
   const limitChip    = document.getElementById('stat-limit-chip')!;
-  const codeOutput   = document.getElementById('code-output')!;
-  const copyBtn      = document.getElementById('copy-btn')!;
+  const saveBtn      = document.getElementById('save-gallery-btn') as HTMLButtonElement;
+  const saveStatus   = document.getElementById('save-status')!;
+  const deployBanner = document.getElementById('deploy-banner')!;
+  const deployMsg    = document.getElementById('deploy-msg')!;
+  const deployIcon   = document.getElementById('deploy-icon')!;
+  const deployLink   = document.getElementById('deploy-link') as HTMLAnchorElement;
 
-  // ── Render del código generado ───────────────────────────
-  function updateCode() {
-    const lines = activeImages.map(
-      (f, i) => `  { src: '/Fundacion_Entrelineas/galeria/${f}', alt: '' },`
-    );
-    codeOutput.textContent = `const images = [\n${lines.join('\n')}\n];`;
-  }
-
+  // ── Counters ─────────────────────────────────────────────
   function updateCounters() {
     activeCount.textContent = `${activeImages.length}/8`;
     statActive.textContent  = String(activeImages.length);
     limitChip.style.display = activeImages.length >= MAX ? '' : 'none';
   }
 
+  // ── Save status label ────────────────────────────────────
+  function setSaveStatus(state: 'idle' | 'saving' | 'saved' | 'error') {
+    const labels = {
+      idle:   '',
+      saving: '<span class="autosave__dot"></span> Guardando y publicando…',
+      saved:  '<span class="autosave__dot" style="background:var(--success)"></span> ¡Listo! Cambios visibles en ~3 min',
+      error:  '<span class="autosave__dot" style="background:var(--danger)"></span> Error al guardar',
+    };
+    saveStatus.className = state === 'saved' ? 'autosave autosave--saved' : 'autosave';
+    saveStatus.innerHTML = labels[state];
+    saveBtn.disabled = state === 'saving';
+  }
+
+  // ── Deploy banner ────────────────────────────────────────
+  function showDeploy(status: string, url?: string) {
+    const configs: Record<string, { icon: string; msg: string; cls: string }> = {
+      pending: { icon: '⏳', msg: 'Deploy en cola…',              cls: '' },
+      running: { icon: '🔄', msg: 'Publicando en GitHub Pages…', cls: '' },
+      success: { icon: '✅', msg: 'Cambios publicados en el sitio', cls: 'deploy-banner--success' },
+      failure: { icon: '❌', msg: 'El deploy falló. Revisa GitHub Actions.', cls: 'deploy-banner--failure' },
+      unknown: { icon: 'ℹ️', msg: 'Estado del deploy desconocido', cls: '' },
+    };
+    const cfg = configs[status] ?? configs.unknown;
+    deployBanner.className = `deploy-banner ${cfg.cls}`;
+    deployBanner.style.display = 'flex';
+    deployIcon.textContent = cfg.icon;
+    deployMsg.textContent  = cfg.msg;
+    if (url) { deployLink.href = url; deployLink.style.display = ''; }
+  }
+
+  // ── Deploy polling ───────────────────────────────────────
+  let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+  function startDeployPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      const res = await fetch(`${BASE}api/gallery/deploy-status`).catch(() => null);
+      if (!res?.ok) return;
+      const data = await res.json();
+      showDeploy(data.status, data.url);
+      if (data.status === 'success' || data.status === 'failure') {
+        clearInterval(pollTimer!);
+        pollTimer = null;
+      }
+    }, 15_000);
+  }
+
   // ── Quitar imagen activa ─────────────────────────────────
   function removeImage(file: string) {
-    activeImages = activeImages.filter(f => f !== file);
-
-    // Mover card al grid inactivo
+    activeImages = activeImages.filter(img => img.file !== file);
     const card = activeGrid.querySelector<HTMLElement>(`[data-file="${file}"]`);
     if (card) {
-      card.classList.remove('img-card--active');
-      card.classList.add('img-card--inactive');
+      card.classList.replace('img-card--active', 'img-card--inactive');
       card.querySelector('.img-card__remove')?.remove();
       card.querySelector('.img-card__badge')?.remove();
 
       const overlay = card.querySelector('.img-card__overlay')!;
+      const btnWrap = document.createElement('div');
+      btnWrap.style.cssText = 'display:flex;gap:0.25rem';
+
       const addBtn = document.createElement('button');
-      addBtn.className  = 'img-card__add';
+      addBtn.className = 'img-card__add';
       addBtn.textContent = '+';
       addBtn.setAttribute('aria-label', `Agregar ${file}`);
-      addBtn.dataset.file = file;
       addBtn.addEventListener('click', () => addImage(file));
-      overlay.appendChild(addBtn);
 
+      const delBtn = document.createElement('button');
+      delBtn.className = 'img-card__delete';
+      delBtn.textContent = '🗑';
+      delBtn.setAttribute('aria-label', `Eliminar ${file}`);
+      delBtn.setAttribute('title', 'Eliminar imagen del repositorio');
+      delBtn.addEventListener('click', () => deleteImage(file));
+
+      btnWrap.append(addBtn, delBtn);
+      overlay.appendChild(btnWrap);
       inactiveGrid.appendChild(card);
     }
-
-    // Quitar badge "Destacada" de la primera si ya no está
-    const first = activeGrid.querySelector<HTMLElement>('.img-card');
-    activeGrid.querySelectorAll('.img-card__badge').forEach(b => b.remove());
-    if (first) {
-      const badge = document.createElement('span');
-      badge.className   = 'img-card__badge';
-      badge.textContent = 'Destacada';
-      first.appendChild(badge);
-    }
-
+    refreshFeaturedBadge();
     updateCounters();
-    updateCode();
   }
 
   // ── Agregar imagen ───────────────────────────────────────
-  function addImage(file: string) {
+  function addImage(file: string, alt = '') {
     if (activeImages.length >= MAX) {
       alert('La galería ya tiene 8 imágenes. Quita una antes de agregar otra.');
       return;
     }
-    activeImages.push(file);
+    activeImages.push({ file, alt });
 
     const card = inactiveGrid.querySelector<HTMLElement>(`[data-file="${file}"]`);
     if (card) {
-      card.classList.remove('img-card--inactive');
-      card.classList.add('img-card--active');
+      card.classList.replace('img-card--inactive', 'img-card--active');
+      card.querySelector('.img-card__add')?.closest('div')?.remove();
       card.querySelector('.img-card__add')?.remove();
+      card.querySelector('.img-card__delete')?.remove();
 
       const overlay = card.querySelector('.img-card__overlay')!;
       const removeBtn = document.createElement('button');
       removeBtn.className   = 'img-card__remove';
       removeBtn.textContent = '✕';
       removeBtn.setAttribute('aria-label', `Quitar ${file}`);
-      removeBtn.dataset.file = file;
       removeBtn.addEventListener('click', () => removeImage(file));
       overlay.appendChild(removeBtn);
-
       activeGrid.appendChild(card);
     }
+    refreshFeaturedBadge();
+    updateCounters();
+  }
 
-    // Badge destacada en la primera
+  function refreshFeaturedBadge() {
     activeGrid.querySelectorAll('.img-card__badge').forEach(b => b.remove());
     const first = activeGrid.querySelector<HTMLElement>('.img-card');
     if (first) {
       const badge = document.createElement('span');
-      badge.className   = 'img-card__badge';
+      badge.className = 'img-card__badge';
       badge.textContent = 'Destacada';
       first.appendChild(badge);
     }
-
-    updateCounters();
-    updateCode();
   }
 
-  // ── Drag & drop para reordenar activas ──────────────────
+  // ── Drag & drop ──────────────────────────────────────────
   let dragSrc: HTMLElement | null = null;
-
   activeGrid.addEventListener('dragstart', e => {
     dragSrc = (e.target as HTMLElement).closest('.img-card');
     dragSrc?.classList.add('img-card--dragging');
@@ -509,9 +591,9 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
     dragSrc?.classList.remove('img-card--dragging');
     dragSrc = null;
     activeGrid.querySelectorAll('.img-card--drag-over').forEach(el => el.classList.remove('img-card--drag-over'));
-    // Actualizar orden en activeImages
-    activeImages = Array.from(activeGrid.querySelectorAll<HTMLElement>('.img-card')).map(el => el.dataset.file!);
-    updateCode();
+    activeImages = Array.from(activeGrid.querySelectorAll<HTMLElement>('.img-card'))
+      .map(el => ({ file: el.dataset.file!, alt: el.dataset.alt ?? '' }));
+    refreshFeaturedBadge();
   });
   activeGrid.addEventListener('dragover', e => {
     e.preventDefault();
@@ -519,8 +601,7 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
     if (target && target !== dragSrc) target.classList.add('img-card--drag-over');
   });
   activeGrid.addEventListener('dragleave', e => {
-    const target = (e.target as HTMLElement).closest<HTMLElement>('.img-card');
-    target?.classList.remove('img-card--drag-over');
+    (e.target as HTMLElement).closest<HTMLElement>('.img-card')?.classList.remove('img-card--drag-over');
   });
   activeGrid.addEventListener('drop', e => {
     e.preventDefault();
@@ -531,27 +612,143 @@ const inactiveFiles = allFiles.filter(f => !activeFiles.includes(f));
     }
   });
 
-  // ── Bind inicial de botones ──────────────────────────────
+  // ── Bind inicial ─────────────────────────────────────────
   activeGrid.querySelectorAll<HTMLButtonElement>('.img-card__remove').forEach(btn => {
     btn.addEventListener('click', () => removeImage(btn.dataset.file!));
   });
   inactiveGrid.querySelectorAll<HTMLButtonElement>('.img-card__add').forEach(btn => {
     btn.addEventListener('click', () => addImage(btn.dataset.file!));
   });
+  inactiveGrid.querySelectorAll<HTMLButtonElement>('.img-card__delete').forEach(btn => {
+    btn.addEventListener('click', () => deleteImage(btn.dataset.file!));
+  });
 
-  // ── Copiar código ────────────────────────────────────────
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(codeOutput.textContent || '').then(() => {
-      copyBtn.textContent = '¡Copiado!';
-      copyBtn.classList.add('code-copy-btn--copied');
-      setTimeout(() => {
-        copyBtn.textContent = 'Copiar';
-        copyBtn.classList.remove('code-copy-btn--copied');
-      }, 2000);
-    });
+  // ── Guardar galería ──────────────────────────────────────
+  saveBtn.addEventListener('click', async () => {
+    setSaveStatus('saving');
+    const images = Array.from(activeGrid.querySelectorAll<HTMLElement>('.img-card'))
+      .map(el => ({ file: el.dataset.file!, alt: el.dataset.alt ?? '' }));
+
+    try {
+      const res = await fetch(`${BASE}api/gallery`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ images }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSaveStatus('saved');
+        if (data.deployTriggered) { showDeploy('pending'); startDeployPolling(); }
+      } else {
+        setSaveStatus('error');
+        window.showToast(data.error ?? 'Error al guardar la galería');
+      }
+    } catch {
+      setSaveStatus('error');
+      window.showToast('Error de conexión. Intenta de nuevo.');
+    }
+  });
+
+  // ── Eliminar imagen inactiva ─────────────────────────────
+  async function deleteImage(file: string) {
+    if (!confirm(`¿Eliminar ${file} del repositorio? Esta acción no se puede deshacer.`)) return;
+    try {
+      const res = await fetch(`${BASE}api/gallery/images/${file}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        inactiveGrid.querySelector(`[data-file="${file}"]`)?.remove();
+        window.showToast(`${file} eliminada`);
+      } else {
+        window.showToast(data.error ?? 'Error al eliminar');
+      }
+    } catch {
+      window.showToast('Error de conexión al eliminar.');
+    }
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  const uploadDrop     = document.getElementById('upload-drop')!;
+  const uploadInput    = document.getElementById('upload-file-input') as HTMLInputElement;
+  const uploadPreview  = document.getElementById('upload-preview-area')!;
+  const uploadImgEl    = document.getElementById('upload-img-preview') as HTMLImageElement;
+  const uploadAlt      = document.getElementById('upload-alt-input') as HTMLInputElement;
+  const uploadConfirm  = document.getElementById('upload-confirm-btn') as HTMLButtonElement;
+  const uploadCancel   = document.getElementById('upload-cancel-btn') as HTMLButtonElement;
+  const uploadStatus   = document.getElementById('upload-status')!;
+  let uploadFile: File | null = null;
+
+  function showUploadPreview(file: File) {
+    uploadFile = file;
+    const reader = new FileReader();
+    reader.onload = e => { uploadImgEl.src = e.target?.result as string; };
+    reader.readAsDataURL(file);
+    uploadPreview.style.display = 'block';
+    uploadStatus.textContent = '';
+  }
+
+  uploadInput.addEventListener('change', () => {
+    if (uploadInput.files?.[0]) showUploadPreview(uploadInput.files[0]);
+  });
+  uploadDrop.addEventListener('dragover', e => { e.preventDefault(); uploadDrop.classList.add('upload-drop--over'); });
+  uploadDrop.addEventListener('dragleave', () => uploadDrop.classList.remove('upload-drop--over'));
+  uploadDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadDrop.classList.remove('upload-drop--over');
+    const file = e.dataTransfer?.files[0];
+    if (file?.type.startsWith('image/')) showUploadPreview(file);
+  });
+
+  uploadCancel.addEventListener('click', () => {
+    uploadFile = null;
+    uploadInput.value = '';
+    uploadImgEl.src = '';
+    uploadAlt.value = '';
+    uploadPreview.style.display = 'none';
+  });
+
+  uploadConfirm.addEventListener('click', async () => {
+    if (!uploadFile) return;
+    uploadConfirm.disabled = true;
+    uploadStatus.textContent = 'Subiendo…';
+
+    const form = new FormData();
+    form.append('image', uploadFile);
+    form.append('alt', uploadAlt.value.trim());
+
+    try {
+      const res = await fetch(`${BASE}api/gallery/upload`, { method: 'POST', body: form });
+      const data = await res.json();
+      if (res.ok) {
+        uploadStatus.textContent = `✓ Subida como ${data.file}`;
+        // Añadir la nueva imagen al grid de inactivas
+        const card = document.createElement('div');
+        card.className = 'img-card img-card--inactive';
+        card.dataset.file = data.file;
+        card.innerHTML = `
+          <img src="${import.meta.env.BASE_URL}galeria/${data.file}" alt="${data.alt}" class="img-card__photo" loading="lazy" />
+          <div class="img-card__overlay">
+            <span class="img-card__name">${data.file}</span>
+            <div style="display:flex;gap:0.25rem">
+              <button class="img-card__add" aria-label="Agregar ${data.file}">+</button>
+              <button class="img-card__delete" aria-label="Eliminar ${data.file}" title="Eliminar imagen del repositorio">🗑</button>
+            </div>
+          </div>`;
+        card.querySelector('.img-card__add')!.addEventListener('click', () => addImage(data.file, data.alt));
+        card.querySelector('.img-card__delete')!.addEventListener('click', () => deleteImage(data.file));
+        inactiveGrid.appendChild(card);
+        // Reset form after short delay
+        setTimeout(() => uploadCancel.click(), 1500);
+      } else {
+        uploadStatus.textContent = `Error: ${data.error}`;
+      }
+    } catch {
+      uploadStatus.textContent = 'Error de conexión.';
+    } finally {
+      uploadConfirm.disabled = false;
+    }
   });
 
   // ── Init ─────────────────────────────────────────────────
-  updateCode();
   updateCounters();
+  refreshFeaturedBadge();
 </script>

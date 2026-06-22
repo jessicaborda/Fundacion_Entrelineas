@@ -1,16 +1,21 @@
 ---
-import { getCollection } from 'astro:content';
+export const prerender = false;
+import { db } from '../../lib/db';
+import { posts as postsTable } from '../../lib/schema';
+import { eq, desc } from 'drizzle-orm';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SectionLabel from '@components/atoms/SectionLabel.astro';
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const rows = await db
+  .select()
+  .from(postsTable)
+  .where(eq(postsTable.status, 'published'))
+  .orderBy(desc(postsTable.pubDate));
 
 const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'] as const;
 
 const countByCategory = categories.reduce<Record<string, number>>((acc, cat) => {
-  acc[cat] = posts.filter(p => p.data.category === cat).length;
+  acc[cat] = rows.filter(p => p.category === cat).length;
   return acc;
 }, {});
 ---
@@ -39,7 +44,7 @@ const countByCategory = categories.reduce<Record<string, number>>((acc, cat) => 
           aria-pressed="true"
         >
           Todos
-          <span class="blog-index__filter-count">{posts.length}</span>
+          <span class="blog-index__filter-count">{rows.length}</span>
         </button>
         {categories.map(cat => countByCategory[cat] > 0 && (
           <button
@@ -54,26 +59,26 @@ const countByCategory = categories.reduce<Record<string, number>>((acc, cat) => 
       </div>
 
       <div class="blog-index__grid" id="blog-grid">
-        {posts.map(post => {
-          const date = post.data.pubDate.toLocaleDateString('es-CO', {
+        {rows.map(post => {
+          const date = new Date(post.pubDate).toLocaleDateString('es-CO', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
           });
           return (
-            <article class="blog-card" data-category={post.data.category}>
+            <article class="blog-card" data-category={post.category}>
               <div class="blog-card__header">
-                <span class="blog-card__category">{post.data.category}</span>
-                <time class="blog-card__date" datetime={post.data.pubDate.toISOString()}>
+                <span class="blog-card__category">{post.category}</span>
+                <time class="blog-card__date" datetime={post.pubDate}>
                   {date}
                 </time>
               </div>
               <h2 class="blog-card__title">
-                <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`}>{post.data.title}</a>
+                <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`}>{post.title}</a>
               </h2>
-              <p class="blog-card__description">{post.data.description}</p>
+              <p class="blog-card__description">{post.description}</p>
               <div class="blog-card__footer">
-                <span class="blog-card__author">{post.data.author}</span>
+                <span class="blog-card__author">{post.author}</span>
                 <a href={`/Fundacion_Entrelineas/blog/${post.slug}/`} class="blog-card__link">
                   Leer más →
                 </a>
@@ -82,6 +87,12 @@ const countByCategory = categories.reduce<Record<string, number>>((acc, cat) => 
           );
         })}
       </div>
+
+      {rows.length === 0 && (
+        <p class="blog-index__empty">
+          No hay publicaciones disponibles todavía.
+        </p>
+      )}
 
       <p class="blog-index__empty" id="blog-empty" hidden>
         No hay publicaciones en esta categoría todavía.

@@ -1,12 +1,13 @@
 ---
-// Blog Admin Panel — UI only, backend pendiente
-const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
+export const prerender = false;
+import { db } from '../../lib/db';
+import { posts as postsTable } from '../../lib/schema';
 
-const mockPosts = [
-  { id: 1, title: 'La lectura como acto político', author: 'Miguel Ángel Palacios Quitián', category: 'Ensayo', pubDate: '2025-09-15', featured: true, status: 'published' },
-  { id: 2, title: 'Pensar desde Colombia', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-10-02', featured: false, status: 'published' },
-  { id: 3, title: 'Pequeños relatos, grandes joyas', author: 'Fundación Entrelíneas', category: 'Artículo', pubDate: '2025-08-20', featured: false, status: 'draft' },
-];
+const allPosts = await db.select().from(postsTable);
+const total     = allPosts.length;
+const published = allPosts.filter(p => p.status === 'published').length;
+const drafts    = allPosts.filter(p => p.status === 'draft').length;
+const featured  = allPosts.filter(p => p.featured).length;
 ---
 
 <!DOCTYPE html>
@@ -355,6 +356,9 @@ const mockPosts = [
       <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="sidebar__link">
         <span class="sidebar__icon">↗</span> Ver blog
       </a>
+      <button class="sidebar__link sidebar__link--logout" id="logout-btn" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="sidebar__icon">⎋</span> Cerrar sesión
+      </button>
     </nav>
     <div class="sidebar__footer">Entrelíneas © 2025</div>
   </aside>
@@ -371,19 +375,19 @@ const mockPosts = [
     <div class="content">
       <div class="stats">
         <div class="stat-card">
-          <span class="stat-card__n">3</span>
+          <span class="stat-card__n">{total}</span>
           <span class="stat-card__label">Total publicaciones</span>
         </div>
         <div class="stat-card">
-          <span class="stat-card__n">2</span>
+          <span class="stat-card__n">{published}</span>
           <span class="stat-card__label">Publicadas</span>
         </div>
         <div class="stat-card">
-          <span class="stat-card__n">1</span>
+          <span class="stat-card__n">{drafts}</span>
           <span class="stat-card__label">Borradores</span>
         </div>
         <div class="stat-card stat-card--accent">
-          <span class="stat-card__n">1</span>
+          <span class="stat-card__n">{featured}</span>
           <span class="stat-card__label">Destacadas</span>
         </div>
       </div>
@@ -405,7 +409,7 @@ const mockPosts = [
             </tr>
           </thead>
           <tbody id="posts-tbody">
-            {mockPosts.map(post => (
+            {allPosts.map(post => (
               <tr data-title={post.title.toLowerCase()}>
                 <td class="td-title">
                   {post.title}
@@ -421,7 +425,7 @@ const mockPosts = [
                 </td>
                 <td class="td-actions">
                   <a href={`/Fundacion_Entrelineas/admin/edit/${post.id}`} class="btn btn--outline btn--sm">Editar</a>
-                  <button class="btn btn--ghost btn--sm" onclick="openDeleteModal(this)" data-title={post.title}>Eliminar</button>
+                  <button class="btn btn--ghost btn--sm" onclick="openDeleteModal(this)" data-id={post.id} data-title={post.title}>Eliminar</button>
                 </td>
               </tr>
             ))}
@@ -445,6 +449,11 @@ const mockPosts = [
   </div>
 
   <script>
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await fetch(`${import.meta.env.BASE_URL}api/auth/logout`, { method: 'POST' });
+      window.location.href = `${import.meta.env.BASE_URL}admin/login`;
+    });
+
     document.getElementById('search-input')?.addEventListener('input', function() {
       const q = this.value.toLowerCase();
       document.querySelectorAll('#posts-tbody tr').forEach(row => {
@@ -452,16 +461,29 @@ const mockPosts = [
       });
     });
 
+    let pendingDeleteId = '';
+
     function openDeleteModal(btn: HTMLButtonElement) {
+      pendingDeleteId = btn.dataset.id || '';
       document.getElementById('delete-modal-title')!.textContent = btn.dataset.title || '';
       document.getElementById('delete-modal')!.classList.add('modal-backdrop--open');
     }
     function closeDeleteModal() {
       document.getElementById('delete-modal')!.classList.remove('modal-backdrop--open');
     }
-    function confirmDelete() {
+    async function confirmDelete() {
       closeDeleteModal();
-      console.log('[Backend pendiente] DELETE /api/posts/:id');
+      if (!pendingDeleteId) return;
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}api/posts/${pendingDeleteId}`, { method: 'DELETE' });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('No se pudo eliminar la publicación. Intenta de nuevo.');
+        }
+      } catch {
+        alert('Error de conexión al eliminar.');
+      }
     }
   </script>
 

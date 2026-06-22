@@ -547,6 +547,9 @@ const { title, activeNav = 'posts' } = Astro.props;
       <a href="/Fundacion_Entrelineas/blog/" target="_blank" class="sidebar__link">
         <span class="sidebar__icon">↗</span> Ver blog
       </a>
+      <button class="sidebar__link sidebar__link--logout" id="logout-btn" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="sidebar__icon">⎋</span> Cerrar sesión
+      </button>
     </nav>
     <div class="sidebar__footer">Entrelíneas © 2025</div>
   </aside>
@@ -570,6 +573,11 @@ const { title, activeNav = 'posts' } = Astro.props;
       t.classList.add('toast--visible');
       setTimeout(() => t.classList.remove('toast--visible'), duration);
     };
+
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await fetch(`${import.meta.env.BASE_URL}api/auth/logout`, { method: 'POST' });
+      window.location.href = `${import.meta.env.BASE_URL}admin/login`;
+    });
 
     window.TagManager = function(wrapId, hiddenId) {
       const tags  = [];

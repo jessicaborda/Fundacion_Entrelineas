@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import AdminLayout from '@layouts/AdminLayout.astro';
 
 const categories = ['Artículo', 'Ensayo', 'Poema', 'Reseña', 'Comentario crítico'];
@@ -262,12 +263,26 @@ const today = new Date().toISOString().split('T')[0];
   slugInput?.addEventListener('input', () => { slugInput.dataset.manual = 'true'; markDirty(); });
 
   // ── Imagen de portada ──
-  function handleImageSelect(input: HTMLInputElement) {
+  async function handleImageSelect(input: HTMLInputElement) {
     const file = input.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => showImagePreview(e.target?.result as string);
-    reader.readAsDataURL(file);
+
+    setAutosaveStatus('saving');
+    const form = new FormData();
+    form.append('file', file);
+    form.append('context', 'cover');
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/media/upload`, { method: 'POST', body: form });
+      const json = await res.json();
+      if (!res.ok) { window.showToast(json.error ?? 'Error al subir imagen'); setAutosaveStatus('dirty'); return; }
+      (document.getElementById('f-cover-url') as HTMLInputElement).value = json.url;
+      showImagePreview(json.url);
+      setAutosaveStatus('dirty');
+    } catch {
+      window.showToast('Error de conexión al subir la imagen');
+      setAutosaveStatus('dirty');
+    }
   }
 
   function handleUrlImage(url: string) {
@@ -315,14 +330,10 @@ const today = new Date().toISOString().split('T')[0];
   const tagManager = window.TagManager('tags-wrap', 'f-tags');
   tagManager.init();
 
-  // ── Dirty state / autosave ──
+  // ── Dirty state ──
   let isDirty = false;
   function markDirty() {
-    if (!isDirty) {
-      isDirty = true;
-      const el = document.getElementById('autosave-status');
-      if (el) el.innerHTML = '<span class="autosave__dot"></span> Cambios sin guardar';
-    }
+    if (!isDirty) { isDirty = true; setAutosaveStatus('dirty'); }
   }
 
   // ── Validación ──
@@ -334,30 +345,67 @@ const today = new Date().toISOString().split('T')[0];
     return !!(titleInput?.value.trim() && descInput?.value.trim());
   }
 
-  // ── Guardar (placeholder backend) ──
-  function handleSave(status: string) {
+  // ── Guardar ──
+  async function handleSave(status: string) {
     if (!validate()) { window.showToast('Completa los campos requeridos'); return; }
+
+    setAutosaveStatus('saving');
+    const body = quill ? quill.root.innerHTML : '';
+    const isEmpty = body === '<p><br></p>' || body.trim() === '';
+
     const data = {
-      title:           titleInput?.value,
-      slug:            slugInput?.value,
-      description:     descInput?.value,
-      body:            quill ? quill.root.innerHTML : '',
-      author:          (document.getElementById('f-author') as HTMLInputElement)?.value,
+      title:           titleInput?.value.trim(),
+      slug:            slugInput?.value.trim(),
+      description:     descInput?.value.trim(),
+      body:            isEmpty ? '' : body,
+      author:          (document.getElementById('f-author') as HTMLInputElement)?.value.trim(),
       category:        (document.getElementById('f-category') as HTMLSelectElement)?.value,
       pubDate:         (document.getElementById('f-pubDate') as HTMLInputElement)?.value,
       featured:        (document.getElementById('f-featured') as HTMLInputElement)?.checked,
       tags:            (document.getElementById('f-tags') as HTMLInputElement)?.value,
-      status,
-      metaTitle:       (document.getElementById('f-meta-title') as HTMLInputElement)?.value,
-      metaDescription: (document.getElementById('f-meta-desc') as HTMLTextAreaElement)?.value,
       coverUrl:        (document.getElementById('f-cover-url') as HTMLInputElement)?.value,
       coverAlt:        (document.getElementById('f-cover-alt') as HTMLInputElement)?.value,
+      metaTitle:       (document.getElementById('f-meta-title') as HTMLInputElement)?.value,
+      metaDescription: (document.getElementById('f-meta-desc') as HTMLTextAreaElement)?.value,
+      status,
     };
-    console.log('[Backend pendiente] POST /api/posts', data);
-    isDirty = false;
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        isDirty = false;
+        setAutosaveStatus('saved');
+        window.showToast(status === 'published' ? 'Entrada publicada correctamente' : 'Borrador guardado');
+        setTimeout(() => {
+          window.location.href = `${import.meta.env.BASE_URL}admin/edit/${json.id}`;
+        }, 800);
+      } else {
+        setAutosaveStatus('dirty');
+        const msg = json.fields ? Object.values(json.fields).join(' · ') : (json.error ?? 'Error al guardar');
+        window.showToast(msg);
+      }
+    } catch {
+      setAutosaveStatus('dirty');
+      window.showToast('Error de conexión. Intenta de nuevo.');
+    }
+  }
+
+  function setAutosaveStatus(state: 'clean' | 'dirty' | 'saving' | 'saved') {
     const el = document.getElementById('autosave-status');
-    if (el) { el.className = 'autosave autosave--saved'; el.innerHTML = '<span class="autosave__dot"></span> Guardado'; }
-    window.showToast(status === 'published' ? 'Entrada publicada correctamente' : 'Borrador guardado');
+    if (!el) return;
+    const labels: Record<string, string> = {
+      clean:  '<span class="autosave__dot"></span> Sin cambios',
+      dirty:  '<span class="autosave__dot"></span> Cambios sin guardar',
+      saving: '<span class="autosave__dot"></span> Guardando…',
+      saved:  '<span class="autosave__dot" style="background:var(--success)"></span> Guardado',
+    };
+    el.className = state === 'saved' ? 'autosave autosave--saved' : 'autosave';
+    el.innerHTML = labels[state];
   }
 
   // ── Prevenir salida con cambios ──
