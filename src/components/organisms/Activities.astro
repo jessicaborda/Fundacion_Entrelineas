@@ -1,18 +1,12 @@
 ---
-// Activities — Instagram reels embed feed
-// Para actualizar: reemplaza las URLs del array `reels` con los permalinks
-// reales de Instagram (clic derecho → "Copiar enlace" en cada publicación).
-// Cuando se migre el dominio, conectar con la Graph API en lugar de este array.
+// Activities — feed de Instagram vía Graph API (src/lib/instagram.ts)
+// El feed se carga client-side desde /api/instagram/posts cuando la sección
+// entra en el viewport. Requiere INSTAGRAM_ACCESS_TOKEN e
+// INSTAGRAM_BUSINESS_ACCOUNT_ID configurados en el entorno (ver .env.example).
 import SectionLabel from '@components/atoms/SectionLabel.astro';
-
-const reels = [
-  'https://www.instagram.com/reel/DZqsTMHNxAL/',
-  'https://www.instagram.com/p/DZfnb_PEbsM/',
-  'https://www.instagram.com/reel/DY2ob5uCHs-/',
-];
 ---
 
-<section class="activities" id="actividades">
+<section class="activities" id="actividades" data-reveal>
   <div class="activities__inner">
     <div class="activities__header">
       <SectionLabel label="Actividades" />
@@ -22,17 +16,8 @@ const reels = [
       </h2>
     </div>
 
-    <div class="activities__feed">
-      {reels.map((url) => (
-        <div class="activities__embed-wrap">
-          <blockquote
-            class="instagram-media"
-            data-instgrm-permalink={`${url}?utm_source=ig_embed&utm_campaign=loading`}
-            data-instgrm-version="14"
-            style="background:#fff; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin:0; max-width:340px; min-width:0; padding:0; width:100%;"
-          ></blockquote>
-        </div>
-      ))}
+    <div class="activities__feed" data-activities-feed>
+      <p class="activities__placeholder">Cargando publicaciones…</p>
     </div>
 
     <div class="activities__cta">
@@ -49,27 +34,68 @@ const reels = [
 </section>
 
 <script>
-  const section = document.querySelector('.activities');
-  const feed = document.querySelector('.activities__feed');
+  interface InstagramPost {
+    id: string;
+    caption: string;
+    mediaType: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+    mediaUrl: string;
+    permalink: string;
+    timestamp: string;
+  }
 
-  const decorateIframes = () => {
-    feed?.querySelectorAll('iframe').forEach((iframe, i) => {
-      if (!iframe.title) iframe.setAttribute('title', `Publicación de Instagram ${i + 1}`);
-      if (!iframe.loading) iframe.setAttribute('loading', 'lazy');
-    });
-  };
+  const section = document.querySelector('.activities');
+  const feed = document.querySelector<HTMLElement>('[data-activities-feed]');
+
+  function truncate(text: string, max: number) {
+    if (text.length <= max) return text;
+    return `${text.slice(0, max).trimEnd()}…`;
+  }
+
+  function renderPosts(posts: InstagramPost[]) {
+    if (!feed) return;
+
+    if (!posts.length) {
+      feed.innerHTML = '<p class="activities__placeholder">No hay publicaciones disponibles en este momento.</p>';
+      return;
+    }
+
+    feed.innerHTML = posts
+      .map((post) => `
+        <a
+          class="activities__card"
+          href="${post.permalink}"
+          target="_blank"
+          rel="noopener"
+          aria-label="Ver publicación en Instagram"
+        >
+          <img
+            class="activities__card-img"
+            src="${post.mediaUrl}"
+            alt="${truncate(post.caption, 100).replace(/"/g, '&quot;')}"
+            loading="lazy"
+          />
+          ${post.caption ? `<span class="activities__card-caption">${truncate(post.caption, 90)}</span>` : ''}
+        </a>
+      `)
+      .join('');
+  }
+
+  async function loadPosts() {
+    try {
+      const res = await fetch('/api/instagram/posts?limit=6');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { posts } = await res.json();
+      renderPosts(posts);
+    } catch (err) {
+      console.error('[activities]', err);
+      if (feed) feed.innerHTML = '<p class="activities__placeholder">No pudimos cargar Instagram en este momento.</p>';
+    }
+  }
 
   if (section && feed) {
-    const observer = new MutationObserver(decorateIframes);
-    observer.observe(feed, { childList: true, subtree: true });
-
-    // Carga embed.js solo cuando la sección entra en el viewport
     const io = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        const script = document.createElement('script');
-        script.src = '//www.instagram.com/embed.js';
-        script.async = true;
-        document.body.appendChild(script);
+        loadPosts();
         io.disconnect();
       }
     }, { rootMargin: '200px' });
@@ -139,15 +165,44 @@ const reels = [
     }
   }
 
-  .activities__embed-wrap {
+  .activities__placeholder {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    color: $color-text-dark;
+    opacity: 0.6;
+  }
+
+  .activities__card {
     flex: 0 0 340px;
     scroll-snap-align: start;
-    overflow: hidden;
-
-    // Mientras cargan los embeds de Instagram
-    min-height: 500px;
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: $spacing-sm;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background-color: #fff;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5), 0 1px 10px 0 rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .activities__card-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+  }
+
+  .activities__card-caption {
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    color: $color-text-dark;
+    padding: 0 $spacing-sm $spacing-sm;
   }
 
   .activities__cta {
@@ -204,8 +259,8 @@ const reels = [
       scroll-padding-left: $spacing-lg;
     }
 
-    .activities__embed-wrap {
-      min-height: 460px;
+    .activities__card {
+      flex-basis: 260px;
     }
   }
 </style>

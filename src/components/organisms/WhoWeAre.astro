@@ -14,7 +14,7 @@ const timeline = [
 ];
 ---
 
-<section class="who-we-are" id="quienes-somos">
+<section class="who-we-are" id="quienes-somos" data-reveal>
   <!-- Manifiesto -->
   <div class="manifesto">
     <div class="manifesto__inner">
@@ -62,6 +62,7 @@ const timeline = [
 
         <div class="history__timeline">
           <div class="history__timeline-line"></div>
+          <div class="history__timeline-line-fill"></div>
           {timeline.map((e, i) => (
             <div class="history__event">
               <div class:list={['history__dot', { 'history__dot--active': i === timeline.length - 1 }]}></div>
@@ -79,6 +80,52 @@ const timeline = [
     </div>
   </div>
 </section>
+
+<script>
+  const timeline = document.querySelector<HTMLElement>('.history__timeline');
+  const events = document.querySelectorAll<HTMLElement>('.history__event');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (timeline && events.length && !prefersReducedMotion) {
+    // Progreso de la línea: arranca cuando el timeline llega al 80% del viewport
+    // y llega a 1 cuando termina de recorrerse.
+    let ticking = false;
+    const updateProgress = () => {
+      const rect = timeline.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = rect.height + vh * 0.5;
+      const scrolled = vh * 0.8 - rect.top;
+      const progress = Math.min(1, Math.max(0, scrolled / total));
+      timeline.style.setProperty('--progress', String(progress));
+      ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+    updateProgress();
+
+    // Cada evento aparece por separado a medida que entra en viewport
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -15% 0px', threshold: 0.3 }
+    );
+    events.forEach((el) => io.observe(el));
+  } else {
+    events.forEach((el) => el.classList.add('is-visible'));
+    timeline?.style.setProperty('--progress', '1');
+  }
+</script>
 
 <style lang="scss">
   .who-we-are {
@@ -186,6 +233,7 @@ const timeline = [
     display: flex;
     flex-direction: column;
     gap: 0;
+    --progress: 0;
   }
 
   .history__timeline-line {
@@ -195,6 +243,23 @@ const timeline = [
     bottom: 8px;
     width: 1px;
     background: rgba(7, 5, 35, 0.18);
+  }
+
+  .history__timeline-line-fill {
+    position: absolute;
+    left: 5.5px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: $color-primary;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .history__timeline-line-fill {
+      transform: scaleY(var(--progress, 0));
+      transform-origin: top;
+      transition: transform 0.1s linear;
+    }
   }
 
   .history__event {
@@ -208,6 +273,19 @@ const timeline = [
     }
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    .history__event {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+
+      &.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
   .history__dot {
     flex-shrink: 0;
     width: 12px;
@@ -215,10 +293,22 @@ const timeline = [
     margin-top: 6px;
     background: $color-text-dark;
     border: 2px solid $color-primary;
+    border-radius: 50%;
     z-index: 1;
 
     &--active {
       background: $color-primary;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .history__dot {
+      transform: scale(0.4);
+      transition: transform 0.3s ease 0.15s;
+    }
+
+    .history__event.is-visible .history__dot {
+      transform: scale(1);
     }
   }
 
